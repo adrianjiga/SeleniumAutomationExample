@@ -1,0 +1,46 @@
+name: Run Tests
+
+on:
+#  pull_request:
+#    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Test - ${{ matrix.group }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        group: [api, ui]
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: 'maven'
+
+      - name: Install Dependencies
+        run: mvn clean install -DskipTests
+
+      - name: Run ${{ matrix.group }} Tests
+        run: mvn test -DsuiteXmlFile=testng-${{ matrix.group }}.xml
+
+      - name: Upload Test Reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-reports-${{ matrix.group }}
+          path: |
+            target/surefire-reports/
+            target/screenshots/
+          if-no-files-found: ignore
+          retention-days: 30
