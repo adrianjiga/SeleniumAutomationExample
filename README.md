@@ -1,6 +1,6 @@
 # Selenium + REST Assured Example
 
-A demo project showcasing Selenium WebDriver and REST Assured testing capabilities, mirroring the structure of a Cypress automation project.
+A demo project showcasing Selenium WebDriver and REST Assured testing capabilities.
 
 ##  Prerequisites
 
