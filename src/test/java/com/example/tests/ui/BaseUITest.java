@@ -38,8 +38,8 @@ public class BaseUITest {
 
         // Block ads at the browser level
         Map<String, Object> prefs = new HashMap<>();
-        prefs.put("profile.default_content_setting_values.notifications", Optional.of(2));
-        prefs.put("profile.default_content_setting_values.ads", Optional.of(2)); // Block ads
+        prefs.put("profile.default_content_setting_values.notifications", 2);
+        prefs.put("profile.default_content_setting_values.ads", 2); // Block ads
         options.setExperimentalOption("prefs", prefs);
 
         // Additional stability options for CI environments
