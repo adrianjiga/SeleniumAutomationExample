@@ -1,8 +1,8 @@
 name: Run Tests
 
 on:
-#  pull_request:
-#    branches: [master]
+  #  pull_request:
+  #    branches: [master]
   workflow_dispatch:
 
 permissions:
@@ -28,6 +28,38 @@ jobs:
           java-version: '17'
           cache: 'maven'
 
+      - name: Setup Chrome
+        if: matrix.group == 'ui'
+        uses: browser-actions/setup-chrome@v1
+        with:
+          chrome-version: stable
+
+      - name: Verify Chrome Installation
+        if: matrix.group == 'ui'
+        run: |
+          echo "Chrome version:"
+          google-chrome --version
+          echo "ChromeDriver will be managed by WebDriverManager"
+
+      - name: Install Chrome Dependencies
+        if: matrix.group == 'ui'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libnss3 \
+            libnspr4 \
+            libatk1.0-0 \
+            libatk-bridge2.0-0 \
+            libcups2 \
+            libdrm2 \
+            libxkbcommon0 \
+            libxcomposite1 \
+            libxdamage1 \
+            libxfixes3 \
+            libxrandr2 \
+            libgbm1 \
+            libasound2
+
       - name: Install Dependencies
         run: mvn clean install -DskipTests
 
@@ -43,4 +75,14 @@ jobs:
             target/surefire-reports/
             target/screenshots/
           if-no-files-found: ignore
+          retention-days: 30
+
+      - name: Upload Test Logs on Failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-logs-${{ matrix.group }}
+          path: |
+            target/surefire-reports/*.xml
+            target/surefire-reports/*.txt
           retention-days: 30
