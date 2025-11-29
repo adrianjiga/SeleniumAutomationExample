@@ -11,7 +11,6 @@ import org.testng.annotations.BeforeMethod;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 public class BaseUITest {
     protected WebDriver driver;
