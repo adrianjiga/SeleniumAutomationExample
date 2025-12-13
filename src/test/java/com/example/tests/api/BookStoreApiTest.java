@@ -28,7 +28,7 @@ public class BookStoreApiTest extends BaseApiTest {
 
         List<Map<String, Object>> books = response.jsonPath().getList("books");
 
-        Assert.assertTrue(books.size() > 0, "Books list should not be empty");
+        Assert.assertFalse(books.isEmpty(), "Books list should not be empty");
 
         // Validate first book structure
         Map<String, Object> firstBook = books.get(0);
