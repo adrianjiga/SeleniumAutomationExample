@@ -1,0 +1,103 @@
+name: Run Tests
+
+on:
+  pull_request:
+    branches: [master]
+  schedule:
+    - cron: "0 7 * * 1-5" # Every Monday to Friday at 07:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Test - ${{ matrix.group }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        group: [api, ui]
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
+
+      - name: Setup Java
+        uses: actions/setup-java@dded0888837ed1f317902acf8a20df0ad188d165 # v5.0.0
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: 'maven'
+
+      - name: Setup Chrome
+        if: matrix.group == 'ui'
+        uses: browser-actions/setup-chrome@b94431e051d1c52dcbe9a7092a4f10f827795416 #v2.1.0
+        with:
+          chrome-version: stable
+
+      - name: Verify Chrome Installation
+        if: matrix.group == 'ui'
+        run: |
+          echo "Chrome version:"
+          google-chrome --version
+          echo "ChromeDriver will be managed by WebDriverManager"
+
+      - name: Install Chrome Dependencies
+        if: matrix.group == 'ui'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libnss3 \
+            libnspr4 \
+            libatk1.0-0 \
+            libatk-bridge2.0-0 \
+            libcups2 \
+            libdrm2 \
+            libxkbcommon0 \
+            libxcomposite1 \
+            libxdamage1 \
+            libxfixes3 \
+            libxrandr2 \
+            libgbm1 \
+            libasound2t64
+
+      - name: Install Dependencies
+        run: mvn clean install -DskipTests
+
+      - name: Run ${{ matrix.group }} Tests
+        id: tests
+        run: mvn test -DsuiteXmlFile=testng-${{ matrix.group }}.xml
+        continue-on-error: true
+
+      - name: Generate Test Summary
+        if: always()
+        uses: test-summary/action@31493c76ec9e7aa675f1585d3ed6f1da69269a86 # v2.4
+        with:
+          paths: target/surefire-reports/TEST-*.xml
+          show: all
+
+      - name: Upload Test Reports
+        if: always()
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
+        with:
+          name: test-reports-${{ matrix.group }}
+          path: |
+            target/surefire-reports/
+            target/screenshots/
+          if-no-files-found: ignore
+          retention-days: 30
+
+      - name: Upload Test Logs on Failure
+        if: failure() || steps.tests.outcome == 'failure'
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
+        with:
+          name: test-logs-${{ matrix.group }}
+          path: |
+            target/surefire-reports/*.xml
+            target/surefire-reports/*.txt
+          retention-days: 30
+
+      - name: Fail if tests failed
+        if: steps.tests.outcome == 'failure'
+        run: exit 1
