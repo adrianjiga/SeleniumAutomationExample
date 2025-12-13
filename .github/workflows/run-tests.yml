@@ -64,7 +64,16 @@ jobs:
         run: mvn clean install -DskipTests
 
       - name: Run ${{ matrix.group }} Tests
+        id: tests
         run: mvn test -DsuiteXmlFile=testng-${{ matrix.group }}.xml
+        continue-on-error: true
+
+      - name: Generate Test Summary
+        if: always()
+        uses: test-summary/action@31493c76ec9e7aa675f1585d3ed6f1da69269a86 # v2.4
+        with:
+          paths: target/surefire-reports/TEST-*.xml
+          show: all
 
       - name: Upload Test Reports
         if: always()
@@ -78,7 +87,7 @@ jobs:
           retention-days: 30
 
       - name: Upload Test Logs on Failure
-        if: failure()
+        if: failure() || steps.tests.outcome == 'failure'
         uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: test-logs-${{ matrix.group }}
@@ -86,3 +95,7 @@ jobs:
             target/surefire-reports/*.xml
             target/surefire-reports/*.txt
           retention-days: 30
+
+      - name: Fail if tests failed
+        if: steps.tests.outcome == 'failure'
+        run: exit 1
