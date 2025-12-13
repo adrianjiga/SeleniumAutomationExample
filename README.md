@@ -1,16 +1,14 @@
 # Selenium + REST Assured Example
 
-A demo project showcasing Selenium WebDriver and REST Assured testing capabilities.
+A demo project showcasing Selenium WebDriver and REST Assured testing capabilities with CI/CD integration.
 
-##  Prerequisites
+## Prerequisites
 
 - Java 17 or higher
 - Maven 3.6 or higher
-- Chrome browser (for Selenium tests)
+- Chrome browser (for UI tests)
 
-##  Getting Started
-
-### Installation
+## Getting Started
 
 ```bash
 # Clone the repository
@@ -18,116 +16,130 @@ git clone git@github.com:adrianjiga/SeleniumAutomationExample.git
 cd SeleniumAutomationExample
 
 # Install dependencies
-mvn clean install
+mvn clean install -DskipTests
 ```
 
-##  Running Tests
+## Running Tests
 
-### Run All Tests
 ```bash
+# Run all tests
 mvn test
-```
 
-### Run Only API Tests
-```bash
+# Run only API tests
 mvn test -DsuiteXmlFile=testng-api.xml
-```
 
-### Run Only UI Tests
-```bash
+# Run only UI tests
 mvn test -DsuiteXmlFile=testng-ui.xml
 ```
 
-##  Project Structure
+## Project Structure
 
 ```
-selenium-restassured-example/
-├── src/
-│   └── test/
-│       └── java/
-│           └── com/
-│               └── example/
-│                   └── tests/
-│                       ├── api/
-│                       │   ├── BaseApiTest.java
-│                       │   └── BookStoreApiTest.java
-│                       └── ui/
-│                           ├── BaseUITest.java
-│                           └── ButtonsTest.java
+SeleniumAutomationExample/
+├── .github/
+│   ├── dependabot.yml
+│   └── workflows/
+│       ├── ci.yml
+│       └── run-tests.yml
+├── src/test/java/com/example/tests/
+│   ├── api/
+│   │   ├── BaseApiTest.java
+│   │   └── BookStoreApiTest.java
+│   └── ui/
+│       ├── BaseUITest.java
+│       └── ButtonsTest.java
 ├── pom.xml
 ├── testng.xml
 ├── testng-api.xml
-├── testng-ui.xml
-├── .gitignore
-└── README.md
+└── testng-ui.xml
 ```
 
-##  Key Technologies
+## Tech Stack
 
-- **Selenium WebDriver 4.26.0** - Browser automation
-- **REST Assured 5.5.0** - API testing
-- **TestNG 7.10.2** - Test framework
-- **WebDriverManager 5.9.2** - Automatic driver management
-- **Maven** - Build and dependency management
+| Technology | Version | Purpose |
+|------------|---------|---------|
+| Selenium WebDriver | 4.39.0 | Browser automation |
+| REST Assured | 6.0.0 | API testing |
+| TestNG | 7.11.0 | Test framework |
+| WebDriverManager | 6.3.3 | Automatic driver management |
+| Java | 17 | Runtime |
+| Maven | 3.6+ | Build & dependency management |
 
-##  Test Details
+## Test Coverage
 
-### API Tests (BookStoreApiTest)
-- ✅ List all books with correct structure and data
-- ✅ Fetch a specific book by valid ISBN
-- ✅ Handle invalid ISBN with proper error response
+### API Tests (`BookStoreApiTest`)
 
-### UI Tests (ButtonsTest)
-- ✅ Interact with double click button
-- ✅ Interact with right click button
-- ✅ Interact with dynamic button
+Tests against the DemoQA BookStore API (`https://demoqa.com/BookStore/v1`):
 
-##  Test Execution Flow
+- **List all books** - Validates response structure, data types, and publisher values
+- **Fetch book by ISBN** - Retrieves specific book details with full field validation
+- **Invalid ISBN handling** - Verifies proper 400 error response for invalid requests
 
-1. **Base Classes** handle common setup:
-    - `BaseUITest` - WebDriver initialization and cleanup
-    - `BaseApiTest` - REST Assured configuration
+### UI Tests (`ButtonsTest`)
 
-2. **Test Classes** contain actual test cases:
-    - API tests use REST Assured for HTTP requests
-    - UI tests use Selenium WebDriver for browser interactions
+Tests against the DemoQA Buttons page (`https://demoqa.com/buttons`):
 
-3. **TestNG** manages test execution and reporting
+- **Double click** - Validates double-click interaction and message display
+- **Right click** - Validates context menu interaction and message display
+- **Dynamic click** - Validates standard click with fallback to JavaScript execution
 
-##  Reports
+## CI/CD
 
-After running tests, TestNG generates reports in:
+### CI Workflow (`ci.yml`)
+
+Lightweight validation on every pull request:
+
+- Verifies Java and Chrome setup
+- Resolves Maven dependencies
+- Compiles source and test code
+- Validates TestNG suite files exist
+
+Fast feedback (~2 min) without running actual tests.
+
+### Test Workflow (`run-tests.yml`)
+
+Full test execution:
+
+- **Triggers**: Pull requests to master, weekday schedule (07:00 UTC), manual dispatch
+- **Matrix strategy**: Parallel execution of API and UI test groups
+- **Features**: Test summaries, artifact uploads, automatic retries (2x for flaky tests)
+
+### Dependabot
+
+Automated dependency updates configured for:
+- Maven dependencies (weekly, Tuesdays)
+- GitHub Actions (weekly, Tuesdays)
+
+## Configuration
+
+### Headless Mode
+
+UI tests run in headless mode by default. To see the browser:
+
+```java
+// In BaseUITest.java, comment out:
+options.addArguments("--headless=new");
 ```
-target/surefire-reports/
-```
 
-Open `index.html` or `emailable-report.html` to view the detailed test report.
+### Parallel Execution
 
-##  Key Features
+Tests run in parallel by default (`testng.xml`):
 
-- Headless Chrome execution for CI/CD compatibility
-- Automatic WebDriver management (no manual driver downloads)
-- Parallel test execution support (configured in testng.xml)
-- Comprehensive assertions and validations
-- Clean test structure with base classes
-
-## Customization
-
-### Remove Headless Mode
-To see the browser during test execution:
-1. Open `src/test/java/com/example/tests/ui/BaseUITest.java`
-2. Remove or comment out: `options.addArguments("--headless");`
-
-### Add More Tests
-1. Create new test class extending `BaseUITest` or `BaseApiTest`
-2. Add `@Test` annotations to test methods
-3. Update corresponding `testng.xml` file
-
-### Enable Parallel Execution
-Edit `testng.xml` and modify:
 ```xml
-<suite name="Test Suite" parallel="methods" thread-count="4">
+<suite name="Test Suite" parallel="tests" thread-count="2">
 ```
+
+### Test Retries
+
+Failed tests automatically retry up to 2 times (configured in `pom.xml`):
+
+```xml
+<rerunFailingTestsCount>2</rerunFailingTestsCount>
+```
+
+## Reports
+
+TestNG generates reports in `target/surefire-reports/` after test execution. GitHub Actions also provides test summaries directly in the workflow run.
 
 ## License
 
