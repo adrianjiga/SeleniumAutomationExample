@@ -1,0 +1,59 @@
+name: Run CI
+
+on:
+  pull_request:
+    branches: [master, main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Validate Build Environment
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: 'maven'
+
+      - name: Setup Chrome
+        uses: browser-actions/setup-chrome@b94431e051d1c52dcbe9a7092a4f10f827795416 #v2.1.0
+        with:
+          chrome-version: stable
+
+      - name: Verify Java
+        run: |
+          java -version
+          mvn -version
+
+      - name: Verify Chrome
+        run: google-chrome --version
+
+      - name: Validate Dependencies
+        run: mvn dependency:resolve -B
+
+      - name: Compile Project
+        run: mvn clean compile test-compile -B
+
+      - name: Validate TestNG Suites
+        run: |
+          echo "Checking TestNG configuration files..."
+          for file in testng.xml testng-api.xml testng-ui.xml; do
+            if [[ -f "$file" ]]; then
+              echo "✓ $file exists"
+            else
+              echo "✗ $file missing"
+              exit 1
+            fi
+          done
