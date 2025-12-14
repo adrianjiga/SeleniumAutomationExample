@@ -34,11 +34,9 @@ public class BaseUITest {
         options.addArguments("--disable-blink-features=AutomationControlled");
         options.addArguments("--disable-extensions");
         options.addArguments("--disable-popup-blocking");
-
-        // Block ads at the browser level
         Map<String, Object> prefs = new HashMap<>();
         prefs.put("profile.default_content_setting_values.notifications", 2);
-        prefs.put("profile.default_content_setting_values.ads", 2); // Block ads
+        prefs.put("profile.default_content_setting_values.ads", 2);
         options.setExperimentalOption("prefs", prefs);
 
         // Additional stability options for CI environments

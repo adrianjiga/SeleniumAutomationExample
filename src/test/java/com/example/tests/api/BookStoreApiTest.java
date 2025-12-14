@@ -30,11 +30,9 @@ public class BookStoreApiTest extends BaseApiTest {
 
         Assert.assertFalse(books.isEmpty(), "Books list should not be empty");
 
-        // Validate first book structure
         Map<String, Object> firstBook = books.get(0);
         validateBookStructure(firstBook);
 
-        // Validate publishers
         for (Map<String, Object> book : books) {
             String publisher = (String) book.get("publisher");
             Assert.assertTrue(
@@ -88,12 +86,10 @@ public class BookStoreApiTest extends BaseApiTest {
         Assert.assertNotNull(book.get("description"), "Description should not be null");
         Assert.assertNotNull(book.get("website"), "Website should not be null");
 
-        // Validate types
         Assert.assertTrue(book.get("isbn") instanceof String, "ISBN should be a string");
         Assert.assertTrue(book.get("pages") instanceof Integer, "Pages should be an integer");
         Assert.assertTrue((Integer) book.get("pages") > 0, "Pages should be greater than 0");
 
-        // Validate ISBN format
         String isbn = (String) book.get("isbn");
         Assert.assertTrue(isbn.matches("^[0-9-]+$"), "ISBN should contain only numbers and hyphens");
     }

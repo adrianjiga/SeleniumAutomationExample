@@ -100,8 +100,6 @@ public class ButtonsTest extends BaseUITest {
     private void removeAds() {
         try {
             JavascriptExecutor js = (JavascriptExecutor) driver;
-
-            // Remove common ad containers
             js.executeScript(
                     "var ads = document.querySelectorAll('[id*=\"google_ads\"], [id*=\"ad-\"], [class*=\"adsbygoogle\"], iframe[src*=\"googlesyndication\"]');" +
                             "ads.forEach(function(ad) { ad.remove(); });"
