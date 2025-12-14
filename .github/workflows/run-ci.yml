@@ -107,16 +107,17 @@ jobs:
           failed=0
           for file in testng.xml testng-api.xml testng-ui.xml; do
             if [[ -f "$file" ]]; then
-              echo "✓ $file exists"
+              echo "[OK] $file exists"
               # Validate XML syntax (--nonet skips external DTD fetch)
               if xmllint --noout --nonet "$file" 2>/dev/null; then
-                echo "  ✓ Valid XML syntax"
+                echo "  [OK] Valid XML syntax"
               else
-                echo "  ✗ Invalid XML syntax"
+                echo "  [FAIL] Invalid XML syntax"
+                xmllint --noout --nonet "$file" 2>&1 || true
                 failed=1
               fi
             else
-              echo "✗ $file missing"
+              echo "[FAIL] $file missing"
               failed=1
             fi
           done
@@ -128,10 +129,10 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "| Check | Status |" >> $GITHUB_STEP_SUMMARY
           echo "|-------|--------|" >> $GITHUB_STEP_SUMMARY
-          echo "| Java Setup | ✓ |" >> $GITHUB_STEP_SUMMARY
-          echo "| Maven Dependencies | ✓ |" >> $GITHUB_STEP_SUMMARY
-          echo "| Compilation | ✓ |" >> $GITHUB_STEP_SUMMARY
-          echo "| TestNG Suites | ✓ |" >> $GITHUB_STEP_SUMMARY
+          echo "| Java Setup | OK |" >> $GITHUB_STEP_SUMMARY
+          echo "| Maven Dependencies | OK |" >> $GITHUB_STEP_SUMMARY
+          echo "| Compilation | OK |" >> $GITHUB_STEP_SUMMARY
+          echo "| TestNG Suites | OK |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Changes detected:**" >> $GITHUB_STEP_SUMMARY
           echo "- API: ${{ needs.changes.outputs.api }}" >> $GITHUB_STEP_SUMMARY
