@@ -319,27 +319,27 @@ jobs:
           # API Tests
           if [[ "${{ needs.changes.outputs.should_run_api }}" == "true" ]]; then
             if [[ "${{ needs.test-api.result }}" == "success" ]]; then
-              echo "| API Tests | ✅ Passed |" >> $GITHUB_STEP_SUMMARY
+              echo "| API Tests | :white_check_mark: Passed |" >> $GITHUB_STEP_SUMMARY
             elif [[ "${{ needs.test-api.result }}" == "failure" ]]; then
-              echo "| API Tests | ❌ Failed |" >> $GITHUB_STEP_SUMMARY
+              echo "| API Tests | :x: Failed |" >> $GITHUB_STEP_SUMMARY
             else
-              echo "| API Tests | ⚠️ ${{ needs.test-api.result }} |" >> $GITHUB_STEP_SUMMARY
+              echo "| API Tests | :warning: ${{ needs.test-api.result }} |" >> $GITHUB_STEP_SUMMARY
             fi
           else
-            echo "| API Tests | ⏭️ Skipped (no changes) |" >> $GITHUB_STEP_SUMMARY
+            echo "| API Tests | :fast_forward: Skipped (no changes) |" >> $GITHUB_STEP_SUMMARY
           fi
           
           # UI Tests
           if [[ "${{ needs.changes.outputs.should_run_ui }}" == "true" ]]; then
             if [[ "${{ needs.test-ui.result }}" == "success" ]]; then
-              echo "| UI Tests | ✅ Passed |" >> $GITHUB_STEP_SUMMARY
+              echo "| UI Tests | :white_check_mark: Passed |" >> $GITHUB_STEP_SUMMARY
             elif [[ "${{ needs.test-ui.result }}" == "failure" ]]; then
-              echo "| UI Tests | ❌ Failed |" >> $GITHUB_STEP_SUMMARY
+              echo "| UI Tests | :x: Failed |" >> $GITHUB_STEP_SUMMARY
             else
-              echo "| UI Tests | ⚠️ ${{ needs.test-ui.result }} |" >> $GITHUB_STEP_SUMMARY
+              echo "| UI Tests | :warning: ${{ needs.test-ui.result }} |" >> $GITHUB_STEP_SUMMARY
             fi
           else
-            echo "| UI Tests | ⏭️ Skipped (no changes) |" >> $GITHUB_STEP_SUMMARY
+            echo "| UI Tests | :fast_forward: Skipped (no changes) |" >> $GITHUB_STEP_SUMMARY
           fi
           
           echo "" >> $GITHUB_STEP_SUMMARY
