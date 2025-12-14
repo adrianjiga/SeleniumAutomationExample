@@ -103,6 +103,7 @@ jobs:
 
       - name: Validate TestNG Suites
         run: |
+          sudo apt-get install -y libxml2-utils > /dev/null 2>&1
           echo "Checking TestNG configuration files..."
           failed=0
           for file in testng.xml testng-api.xml testng-ui.xml; do
