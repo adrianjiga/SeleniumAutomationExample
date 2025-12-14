@@ -108,8 +108,8 @@ jobs:
           for file in testng.xml testng-api.xml testng-ui.xml; do
             if [[ -f "$file" ]]; then
               echo "✓ $file exists"
-              # Validate XML syntax
-              if xmllint --noout "$file" 2>/dev/null; then
+              # Validate XML syntax (--nonet skips external DTD fetch)
+              if xmllint --noout --nonet "$file" 2>/dev/null; then
                 echo "  ✓ Valid XML syntax"
               else
                 echo "  ✗ Invalid XML syntax"
