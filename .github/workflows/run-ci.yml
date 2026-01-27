@@ -3,6 +3,13 @@ name: Run CI
 on:
   pull_request:
     branches: [master, main]
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: "Branch to run CI against"
+        required: false
+        default: "master"
+        type: string
 
 permissions:
   contents: read
@@ -52,9 +59,9 @@ jobs:
       - name: Setup Java
         uses: actions/setup-java@f2beeb24e141e01a676f977032f5a29d81c9e27e # v5.1.0
         with:
-          distribution: 'temurin'
-          java-version: '17'
-          cache: 'maven'
+          distribution: "temurin"
+          java-version: "17"
+          cache: "maven"
 
       - name: Cache Maven Dependencies
         uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
