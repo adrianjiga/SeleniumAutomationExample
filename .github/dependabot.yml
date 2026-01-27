@@ -6,9 +6,6 @@ updates:
       interval: "weekly"
       day: "tuesday"
     open-pull-requests-limit: 5
-    labels:
-      - "dependencies"
-      - "java"
     commit-message:
       prefix: "deps(maven)"
     groups:
@@ -27,9 +24,6 @@ updates:
       interval: "weekly"
       day: "tuesday"
     open-pull-requests-limit: 5
-    labels:
-      - "dependencies"
-      - "github-actions"
     commit-message:
       prefix: "deps(actions)"
     groups:
