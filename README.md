@@ -2,6 +2,8 @@
 
 A demo project showcasing Selenium WebDriver and REST Assured testing capabilities with CI/CD integration.
 
+**Target site:** [adrianjiga.github.io/qa/helpers](https://adrianjiga.github.io/qa/helpers)
+
 ## Prerequisites
 
 - Java 17 or higher
@@ -22,7 +24,7 @@ mvn clean install -DskipTests
 ## Running Tests
 
 ```bash
-# Run all tests
+# Run all tests (API + UI in parallel)
 mvn test
 
 # Run only API tests
@@ -30,6 +32,13 @@ mvn test -DsuiteXmlFile=testng-api.xml
 
 # Run only UI tests
 mvn test -DsuiteXmlFile=testng-ui.xml
+
+# Run a single test class
+mvn test -Dtest=QaHelpersApiTest
+mvn test -Dtest=WebTablesTest
+
+# Run a single test method
+mvn test -Dtest=WebTablesTest#testAddNewRecord
 ```
 
 ## Project Structure
@@ -39,15 +48,17 @@ SeleniumAutomationExample/
 ├── .github/
 │   ├── dependabot.yml
 │   └── workflows/
-│       ├── ci.yml
+│       ├── run-ci.yml
 │       └── run-tests.yml
 ├── src/test/java/com/example/tests/
 │   ├── api/
 │   │   ├── BaseApiTest.java
-│   │   └── BookStoreApiTest.java
+│   │   └── QaHelpersApiTest.java
 │   └── ui/
 │       ├── BaseUITest.java
-│       └── ButtonsTest.java
+│       ├── ButtonsTest.java
+│       ├── WebTablesTest.java
+│       └── PracticeFormTest.java
 ├── pom.xml
 ├── testng.xml
 ├── testng-api.xml
@@ -58,41 +69,71 @@ SeleniumAutomationExample/
 
 | Technology | Version | Purpose |
 |------------|---------|---------|
-| Selenium WebDriver | 4.39.0 | Browser automation |
-| REST Assured | 6.0.0 | API testing |
-| TestNG | 7.11.0 | Test framework |
-| WebDriverManager | 6.3.3 | Automatic driver management |
+| Selenium WebDriver | 4.40.0 | Browser automation |
+| REST Assured | 6.0.0 | API / HTTP testing |
+| TestNG | 7.12.0 | Test framework |
+| WebDriverManager | 6.3.3 | Automatic ChromeDriver management |
 | Java | 17 | Runtime |
 | Maven | 3.6+ | Build & dependency management |
 
 ## Test Coverage
 
-### API Tests (`BookStoreApiTest`)
+### API Tests (`QaHelpersApiTest`) — 12 tests
 
-Tests against the DemoQA BookStore API (`https://demoqa.com/BookStore/v1`):
+HTTP-level tests against the QA Helpers site (`https://adrianjiga.github.io/qa/helpers`):
 
-- **List all books** - Validates response structure, data types, and publisher values
-- **Fetch book by ISBN** - Retrieves specific book details with full field validation
-- **Invalid ISBN handling** - Verifies proper 400 error response for invalid requests
+- **Index page** — loads with 200 and `text/html` content type
+- **Buttons page** — correct status, all three button elements present, all message elements present
+- **Web Tables page** — correct status, table structure, pagination controls, correct column headers
+- **Practice Form page** — correct status, all required form fields, gender radios, hobby checkboxes, country options
+- **Error handling** — non-existent page returns a 4xx response
 
-### UI Tests (`ButtonsTest`)
+### UI Tests
 
-Tests against the DemoQA Buttons page (`https://demoqa.com/buttons`):
+#### `ButtonsTest` — 5 tests
 
-- **Double click** - Validates double-click interaction and message display
-- **Right click** - Validates context menu interaction and message display
-- **Dynamic click** - Validates standard click with fallback to JavaScript execution
+Tests against the [Buttons page](https://adrianjiga.github.io/qa/helpers/buttons):
+
+- **Double click** — validates double-click interaction and message display
+- **Right click** — validates context menu interaction and message display
+- **Dynamic click** — validates standard click with JS executor fallback
+- **Messages hidden by default** — verifies no messages are shown before any interaction
+- **Only triggered message shown** — verifies other messages stay hidden after a single interaction
+
+#### `WebTablesTest` — 15 tests
+
+Tests against the [Web Tables page](https://adrianjiga.github.io/qa/helpers/webtables):
+
+- **Default data** — 3 default records rendered on load, correct values and departments
+- **Search** — filter by first name, filter by department, no results, restore on clear
+- **Add record** — fills registration modal and verifies new row appears
+- **Cancel modal** — closing without saving keeps row count unchanged
+- **Delete record** — row count decreases, correct row removed
+- **Edit record** — values updated in table, modal pre-populated with existing data
+- **Pagination** — default page state, rows-per-page selector
+
+#### `PracticeFormTest` — 13 tests
+
+Tests against the [Automation Practice Form](https://adrianjiga.github.io/qa/helpers/automation-practice-form):
+
+- **Full form submission** — fills all fields and validates success modal
+- **Modal close** — close button hides the success modal
+- **Gender radios** — select Male, select Female, switch between selections
+- **Hobby checkboxes** — check one, check multiple, uncheck
+- **Date picker** — opens popup, selects a date and verifies input value
+- **Country / city cascade** — city options populate after country selection, select a city
+- **Text fields** — all inputs accept and retain typed values
 
 ## CI/CD
 
-### CI Workflow (`ci.yml`)
+### CI Workflow (`run-ci.yml`)
 
 Lightweight validation on every pull request:
 
 - Verifies Java and Chrome setup
 - Resolves Maven dependencies
 - Compiles source and test code
-- Validates TestNG suite files exist
+- Validates TestNG suite XML files
 
 Fast feedback (~2 min) without running actual tests.
 
@@ -100,9 +141,10 @@ Fast feedback (~2 min) without running actual tests.
 
 Full test execution:
 
-- **Triggers**: Pull requests to master, weekday schedule (07:00 UTC), manual dispatch
-- **Matrix strategy**: Parallel execution of API and UI test groups
-- **Features**: Test summaries, artifact uploads, automatic retries (2x for flaky tests)
+- **Triggers:** Pull requests to master, weekday schedule (07:00 UTC), manual dispatch
+- **Jobs:** `test-api` and `test-ui` run as separate parallel jobs on `ubuntu-latest`
+- **Features:** Test summaries, artifact uploads (reports retained 14 days), automatic retries (2x for flaky tests)
+- **Manual dispatch:** supports `all`, `api`, or `ui` test group selection
 
 ### Dependabot
 
@@ -114,7 +156,7 @@ Automated dependency updates configured for:
 
 ### Headless Mode
 
-UI tests run in headless mode by default. To see the browser:
+UI tests run in headless Chrome by default. To see the browser locally:
 
 ```java
 // In BaseUITest.java, comment out:
@@ -123,7 +165,7 @@ options.addArguments("--headless=new");
 
 ### Parallel Execution
 
-Tests run in parallel by default (`testng.xml`):
+The main `testng.xml` runs API and UI test groups in parallel:
 
 ```xml
 <suite name="Test Suite" parallel="tests" thread-count="2">
