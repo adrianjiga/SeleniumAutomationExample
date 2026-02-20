@@ -3,13 +3,26 @@
 <suite name="Test Suite" parallel="tests" thread-count="2">
     <test name="API Tests">
         <classes>
-            <class name="com.example.tests.api.BookStoreApiTest"/>
+            <class name="com.example.tests.api.SiteApiTest"/>
+            <class name="com.example.tests.api.ButtonsPageApiTest"/>
+            <class name="com.example.tests.api.WebTablesPageApiTest"/>
+            <class name="com.example.tests.api.PracticeFormPageApiTest"/>
         </classes>
     </test>
 
     <test name="UI Tests">
         <classes>
-            <class name="com.example.tests.ui.ButtonsTest"/>
+            <class name="com.example.tests.ui.buttons.ButtonsClickTest"/>
+            <class name="com.example.tests.ui.buttons.ButtonsVisibilityTest"/>
+            <class name="com.example.tests.ui.webtables.WebTablesDefaultDataTest"/>
+            <class name="com.example.tests.ui.webtables.WebTablesSearchTest"/>
+            <class name="com.example.tests.ui.webtables.WebTablesCrudTest"/>
+            <class name="com.example.tests.ui.webtables.WebTablesPaginationTest"/>
+            <class name="com.example.tests.ui.form.PracticeFormSubmissionTest"/>
+            <class name="com.example.tests.ui.form.PracticeFormGenderTest"/>
+            <class name="com.example.tests.ui.form.PracticeFormHobbiesTest"/>
+            <class name="com.example.tests.ui.form.PracticeFormDatePickerTest"/>
+            <class name="com.example.tests.ui.form.PracticeFormLocationTest"/>
         </classes>
     </test>
 </suite>

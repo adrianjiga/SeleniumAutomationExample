@@ -6,8 +6,8 @@ import io.restassured.specification.RequestSpecification;
 import org.testng.annotations.BeforeClass;
 
 public class BaseApiTest {
-    protected static final String BASE_URI = "https://demoqa.com";
-    protected static final String BASE_PATH = "/BookStore/v1";
+    protected static final String BASE_URI = "https://adrianjiga.github.io";
+    protected static final String BASE_PATH = "/qa/helpers";
 
     protected RequestSpecification requestSpec;
 
@@ -16,7 +16,7 @@ public class BaseApiTest {
         requestSpec = new RequestSpecBuilder()
                 .setBaseUri(BASE_URI)
                 .setBasePath(BASE_PATH)
-                .addHeader("Accept", "application/json")
+                .addHeader("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
                 .build();
 
         RestAssured.baseURI = BASE_URI;

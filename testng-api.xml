@@ -3,7 +3,10 @@
 <suite name="API Test Suite">
     <test name="API Tests">
         <classes>
-            <class name="com.example.tests.api.BookStoreApiTest"/>
+            <class name="com.example.tests.api.SiteApiTest"/>
+            <class name="com.example.tests.api.ButtonsPageApiTest"/>
+            <class name="com.example.tests.api.WebTablesPageApiTest"/>
+            <class name="com.example.tests.api.PracticeFormPageApiTest"/>
         </classes>
     </test>
 </suite>
