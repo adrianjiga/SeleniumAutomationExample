@@ -3,9 +3,17 @@
 <suite name="UI Test Suite">
     <test name="UI Tests">
         <classes>
-            <class name="com.example.tests.ui.ButtonsTest"/>
-            <class name="com.example.tests.ui.WebTablesTest"/>
-            <class name="com.example.tests.ui.PracticeFormTest"/>
+            <class name="com.example.tests.ui.buttons.ButtonsClickTest"/>
+            <class name="com.example.tests.ui.buttons.ButtonsVisibilityTest"/>
+            <class name="com.example.tests.ui.webtables.WebTablesDefaultDataTest"/>
+            <class name="com.example.tests.ui.webtables.WebTablesSearchTest"/>
+            <class name="com.example.tests.ui.webtables.WebTablesCrudTest"/>
+            <class name="com.example.tests.ui.webtables.WebTablesPaginationTest"/>
+            <class name="com.example.tests.ui.form.PracticeFormSubmissionTest"/>
+            <class name="com.example.tests.ui.form.PracticeFormGenderTest"/>
+            <class name="com.example.tests.ui.form.PracticeFormHobbiesTest"/>
+            <class name="com.example.tests.ui.form.PracticeFormDatePickerTest"/>
+            <class name="com.example.tests.ui.form.PracticeFormLocationTest"/>
         </classes>
     </test>
 </suite>
