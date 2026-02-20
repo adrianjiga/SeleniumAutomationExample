@@ -4,6 +4,8 @@
     <test name="UI Tests">
         <classes>
             <class name="com.example.tests.ui.ButtonsTest"/>
+            <class name="com.example.tests.ui.WebTablesTest"/>
+            <class name="com.example.tests.ui.PracticeFormTest"/>
         </classes>
     </test>
 </suite>

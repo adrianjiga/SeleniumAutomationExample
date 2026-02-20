@@ -3,13 +3,15 @@
 <suite name="Test Suite" parallel="tests" thread-count="2">
     <test name="API Tests">
         <classes>
-            <class name="com.example.tests.api.BookStoreApiTest"/>
+            <class name="com.example.tests.api.QaHelpersApiTest"/>
         </classes>
     </test>
 
     <test name="UI Tests">
         <classes>
             <class name="com.example.tests.ui.ButtonsTest"/>
+            <class name="com.example.tests.ui.WebTablesTest"/>
+            <class name="com.example.tests.ui.PracticeFormTest"/>
         </classes>
     </test>
 </suite>
