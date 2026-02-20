@@ -18,14 +18,14 @@ mvn test -DsuiteXmlFile=testng-api.xml
 mvn test -DsuiteXmlFile=testng-ui.xml
 
 # Run a single test class
-mvn test -Dtest=QaHelpersApiTest
-mvn test -Dtest=WebTablesTest
-mvn test -Dtest=PracticeFormTest
-mvn test -Dtest=ButtonsTest
+mvn test -Dtest=SiteApiTest
+mvn test -Dtest=WebTablesCrudTest
+mvn test -Dtest=PracticeFormSubmissionTest
+mvn test -Dtest=ButtonsClickTest
 
 # Run a single test method
-mvn test -Dtest=WebTablesTest#testAddNewRecord
-mvn test -Dtest=QaHelpersApiTest#testButtonsPageLoads
+mvn test -Dtest=WebTablesCrudTest#testAddNewRecord
+mvn test -Dtest=ButtonsPageApiTest#testButtonsPageLoads
 ```
 
 ## Architecture
@@ -47,12 +47,32 @@ This is a Maven-based test automation project using TestNG as the test framework
 
 ### Test Files
 
-| Class | Type | Page | Tests |
+**API** (`src/test/java/com/example/tests/api/`):
+
+| Class | Page | Tests |
+|---|---|---|
+| `SiteApiTest` | index + 404 | 2 |
+| `ButtonsPageApiTest` | `/buttons` | 3 |
+| `WebTablesPageApiTest` | `/webtables` | 4 |
+| `PracticeFormPageApiTest` | `/automation-practice-form` | 5 |
+
+**UI** — split into subpackages under `src/test/java/com/example/tests/ui/`:
+
+| Package | Class | Page | Tests |
 |---|---|---|---|
-| `QaHelpersApiTest` | API | All pages | 12 |
-| `ButtonsTest` | UI | `/buttons` | 5 |
-| `WebTablesTest` | UI | `/webtables` | 15 |
-| `PracticeFormTest` | UI | `/automation-practice-form` | 13 |
+| `ui.buttons` | `ButtonsClickTest` | `/buttons` | 3 |
+| `ui.buttons` | `ButtonsVisibilityTest` | `/buttons` | 2 |
+| `ui.webtables` | `WebTablesDefaultDataTest` | `/webtables` | 3 |
+| `ui.webtables` | `WebTablesSearchTest` | `/webtables` | 4 |
+| `ui.webtables` | `WebTablesCrudTest` | `/webtables` | 6 |
+| `ui.webtables` | `WebTablesPaginationTest` | `/webtables` | 2 |
+| `ui.form` | `PracticeFormSubmissionTest` | `/automation-practice-form` | 3 |
+| `ui.form` | `PracticeFormGenderTest` | `/automation-practice-form` | 3 |
+| `ui.form` | `PracticeFormHobbiesTest` | `/automation-practice-form` | 3 |
+| `ui.form` | `PracticeFormDatePickerTest` | `/automation-practice-form` | 2 |
+| `ui.form` | `PracticeFormLocationTest` | `/automation-practice-form` | 2 |
+
+Shared base classes (no tests): `ui.webtables.BaseWebTablesTest`, `ui.form.BasePracticeFormTest`. Both extend `BaseUITest` from the parent `ui` package and require `import com.example.tests.ui.BaseUITest;`.
 
 ### TestNG Configuration
 

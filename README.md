@@ -34,11 +34,11 @@ mvn test -DsuiteXmlFile=testng-api.xml
 mvn test -DsuiteXmlFile=testng-ui.xml
 
 # Run a single test class
-mvn test -Dtest=QaHelpersApiTest
-mvn test -Dtest=WebTablesTest
+mvn test -Dtest=WebTablesCrudTest
+mvn test -Dtest=PracticeFormSubmissionTest
 
 # Run a single test method
-mvn test -Dtest=WebTablesTest#testAddNewRecord
+mvn test -Dtest=WebTablesCrudTest#testAddNewRecord
 ```
 
 ## Project Structure
@@ -53,12 +53,28 @@ SeleniumAutomationExample/
 ├── src/test/java/com/example/tests/
 │   ├── api/
 │   │   ├── BaseApiTest.java
-│   │   └── QaHelpersApiTest.java
+│   │   ├── SiteApiTest.java
+│   │   ├── ButtonsPageApiTest.java
+│   │   ├── WebTablesPageApiTest.java
+│   │   └── PracticeFormPageApiTest.java
 │   └── ui/
 │       ├── BaseUITest.java
-│       ├── ButtonsTest.java
-│       ├── WebTablesTest.java
-│       └── PracticeFormTest.java
+│       ├── buttons/
+│       │   ├── ButtonsClickTest.java
+│       │   └── ButtonsVisibilityTest.java
+│       ├── webtables/
+│       │   ├── BaseWebTablesTest.java
+│       │   ├── WebTablesDefaultDataTest.java
+│       │   ├── WebTablesSearchTest.java
+│       │   ├── WebTablesCrudTest.java
+│       │   └── WebTablesPaginationTest.java
+│       └── form/
+│           ├── BasePracticeFormTest.java
+│           ├── PracticeFormSubmissionTest.java
+│           ├── PracticeFormGenderTest.java
+│           ├── PracticeFormHobbiesTest.java
+│           ├── PracticeFormDatePickerTest.java
+│           └── PracticeFormLocationTest.java
 ├── pom.xml
 ├── testng.xml
 ├── testng-api.xml
@@ -78,51 +94,50 @@ SeleniumAutomationExample/
 
 ## Test Coverage
 
-### API Tests (`QaHelpersApiTest`) — 12 tests
+### API Tests — 14 tests total
 
 HTTP-level tests against the QA Helpers site (`https://adrianjiga.github.io/qa/helpers`):
 
-- **Index page** — loads with 200 and `text/html` content type
-- **Buttons page** — correct status, all three button elements present, all message elements present
-- **Web Tables page** — correct status, table structure, pagination controls, correct column headers
-- **Practice Form page** — correct status, all required form fields, gender radios, hobby checkboxes, country options
-- **Error handling** — non-existent page returns a 4xx response
+| Class | Tests |
+|---|---|
+| `SiteApiTest` | Index page loads (200), non-existent page returns 4xx |
+| `ButtonsPageApiTest` | Page loads, all button elements present, all message elements present |
+| `WebTablesPageApiTest` | Page loads, table structure, pagination controls, correct column headers |
+| `PracticeFormPageApiTest` | Page loads, required fields, gender radios, hobby checkboxes, country options |
 
 ### UI Tests
 
-#### `ButtonsTest` — 5 tests
+#### Buttons — 5 tests
 
 Tests against the [Buttons page](https://adrianjiga.github.io/qa/helpers/buttons):
 
-- **Double click** — validates double-click interaction and message display
-- **Right click** — validates context menu interaction and message display
-- **Dynamic click** — validates standard click with JS executor fallback
-- **Messages hidden by default** — verifies no messages are shown before any interaction
-- **Only triggered message shown** — verifies other messages stay hidden after a single interaction
+| Class | Tests |
+|---|---|
+| `ButtonsClickTest` | Double click, right click, dynamic click (with JS executor fallback) |
+| `ButtonsVisibilityTest` | Messages hidden by default, only triggered message shown after interaction |
 
-#### `WebTablesTest` — 15 tests
+#### Web Tables — 15 tests
 
 Tests against the [Web Tables page](https://adrianjiga.github.io/qa/helpers/webtables):
 
-- **Default data** — 3 default records rendered on load, correct values and departments
-- **Search** — filter by first name, filter by department, no results, restore on clear
-- **Add record** — fills registration modal and verifies new row appears
-- **Cancel modal** — closing without saving keeps row count unchanged
-- **Delete record** — row count decreases, correct row removed
-- **Edit record** — values updated in table, modal pre-populated with existing data
-- **Pagination** — default page state, rows-per-page selector
+| Class | Tests |
+|---|---|
+| `WebTablesDefaultDataTest` | 3 default records rendered, correct values, correct departments |
+| `WebTablesSearchTest` | Filter by name, filter by department, no results, restore on clear |
+| `WebTablesCrudTest` | Add record, cancel modal, delete record, delete specific row, edit record, modal pre-populated |
+| `WebTablesPaginationTest` | Default page state, rows-per-page selector |
 
-#### `PracticeFormTest` — 13 tests
+#### Practice Form — 13 tests
 
 Tests against the [Automation Practice Form](https://adrianjiga.github.io/qa/helpers/automation-practice-form):
 
-- **Full form submission** — fills all fields and validates success modal
-- **Modal close** — close button hides the success modal
-- **Gender radios** — select Male, select Female, switch between selections
-- **Hobby checkboxes** — check one, check multiple, uncheck
-- **Date picker** — opens popup, selects a date and verifies input value
-- **Country / city cascade** — city options populate after country selection, select a city
-- **Text fields** — all inputs accept and retain typed values
+| Class | Tests |
+|---|---|
+| `PracticeFormSubmissionTest` | Full form submission, modal close, text fields accept input |
+| `PracticeFormGenderTest` | Select Male, select Female, switch between selections |
+| `PracticeFormHobbiesTest` | Check one hobby, check multiple independently, uncheck |
+| `PracticeFormDatePickerTest` | Opens popup, selects a date and verifies input value |
+| `PracticeFormLocationTest` | Cities populate after country selection, select country and city |
 
 ## CI/CD
 
