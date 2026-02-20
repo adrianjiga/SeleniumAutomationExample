@@ -2,6 +2,7 @@ package com.example.tests.ui.form;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
+import org.testng.asserts.SoftAssert;
 
 public class PracticeFormHobbiesTest extends BasePracticeFormTest {
 
@@ -16,9 +17,11 @@ public class PracticeFormHobbiesTest extends BasePracticeFormTest {
         formPage.checkHobby("hobby-sports-label");
         formPage.checkHobby("hobby-reading-label");
 
-        Assert.assertTrue(formPage.isHobbyChecked(1), "Sports should be checked");
-        Assert.assertTrue(formPage.isHobbyChecked(2), "Reading should be checked");
-        Assert.assertFalse(formPage.isHobbyChecked(3), "Music should remain unchecked");
+        SoftAssert soft = new SoftAssert();
+        soft.assertTrue(formPage.isHobbyChecked(1), "Sports should be checked");
+        soft.assertTrue(formPage.isHobbyChecked(2), "Reading should be checked");
+        soft.assertFalse(formPage.isHobbyChecked(3), "Music should remain unchecked");
+        soft.assertAll();
     }
 
     @Test(description = "Should uncheck a previously checked hobby")

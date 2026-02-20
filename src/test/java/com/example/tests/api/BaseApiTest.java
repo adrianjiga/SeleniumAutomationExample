@@ -1,13 +1,14 @@
 package com.example.tests.api;
 
+import com.example.config.ConfigManager;
 import io.restassured.RestAssured;
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.specification.RequestSpecification;
 import org.testng.annotations.BeforeClass;
 
 public class BaseApiTest {
-    protected static final String BASE_URI = "https://adrianjiga.github.io";
-    protected static final String BASE_PATH = "/qa/helpers";
+    protected static final String BASE_URI = ConfigManager.get("api.base.uri");
+    protected static final String BASE_PATH = ConfigManager.get("api.base.path");
 
     protected RequestSpecification requestSpec;
 

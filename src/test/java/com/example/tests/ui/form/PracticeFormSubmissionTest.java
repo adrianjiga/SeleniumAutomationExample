@@ -2,6 +2,7 @@ package com.example.tests.ui.form;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
+import org.testng.asserts.SoftAssert;
 
 public class PracticeFormSubmissionTest extends BasePracticeFormTest {
 
@@ -42,11 +43,13 @@ public class PracticeFormSubmissionTest extends BasePracticeFormTest {
         formPage.setPhone("9876543210");
         formPage.setAddress("42 Fantasy Lane");
 
-        Assert.assertEquals(formPage.getFieldValue("firstName"), "Alice");
-        Assert.assertEquals(formPage.getFieldValue("lastName"), "Wonderland");
-        Assert.assertEquals(formPage.getFieldValue("userEmail"), "alice@example.com");
-        Assert.assertEquals(formPage.getFieldValue("userNumber"), "9876543210");
-        Assert.assertEquals(formPage.getFieldValue("currentAddress"), "42 Fantasy Lane");
+        SoftAssert soft = new SoftAssert();
+        soft.assertEquals(formPage.getFieldValue("firstName"), "Alice");
+        soft.assertEquals(formPage.getFieldValue("lastName"), "Wonderland");
+        soft.assertEquals(formPage.getFieldValue("userEmail"), "alice@example.com");
+        soft.assertEquals(formPage.getFieldValue("userNumber"), "9876543210");
+        soft.assertEquals(formPage.getFieldValue("currentAddress"), "42 Fantasy Lane");
+        soft.assertAll();
     }
 
     private void fillMinimalForm() {

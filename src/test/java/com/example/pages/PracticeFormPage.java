@@ -1,5 +1,6 @@
 package com.example.pages;
 
+import io.qameta.allure.Step;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -63,71 +64,96 @@ public class PracticeFormPage {
         return By.cssSelector("[data-cy='day-" + day + "']");
     }
 
-    public void navigate(String baseUrl) {
+    @Step("Navigate to Practice Form page")
+    public PracticeFormPage navigate(String baseUrl) {
         driver.get(baseUrl + "/automation-practice-form");
         wait.until(ExpectedConditions.jsReturnsValue("return document.readyState === 'complete';"));
         wait.until(ExpectedConditions.visibilityOfElementLocated(FORM_CONTAINER));
+        return this;
     }
 
-    public void setFirstName(String value) {
+    @Step("Set first name to '{value}'")
+    public PracticeFormPage setFirstName(String value) {
         driver.findElement(FIRST_NAME).sendKeys(value);
+        return this;
     }
 
-    public void setLastName(String value) {
+    @Step("Set last name to '{value}'")
+    public PracticeFormPage setLastName(String value) {
         driver.findElement(LAST_NAME).sendKeys(value);
+        return this;
     }
 
-    public void setEmail(String value) {
+    @Step("Set email to '{value}'")
+    public PracticeFormPage setEmail(String value) {
         driver.findElement(USER_EMAIL).sendKeys(value);
+        return this;
     }
 
-    public void setPhone(String value) {
+    @Step("Set phone to '{value}'")
+    public PracticeFormPage setPhone(String value) {
         driver.findElement(USER_NUMBER).sendKeys(value);
+        return this;
     }
 
-    public void setAddress(String value) {
+    @Step("Set address to '{value}'")
+    public PracticeFormPage setAddress(String value) {
         driver.findElement(CURRENT_ADDRESS).sendKeys(value);
+        return this;
     }
 
-    public void selectGender(int radioIndex) {
+    @Step("Select gender radio index {radioIndex}")
+    public PracticeFormPage selectGender(int radioIndex) {
         driver.findElement(genderLabel(radioIndex)).click();
+        return this;
     }
 
+    @Step("Check if gender radio index {radioIndex} is selected")
     public boolean isGenderSelected(int radioIndex) {
         return driver.findElement(genderRadio(radioIndex)).isSelected();
     }
 
-    public void checkHobby(String dataCyLabel) {
+    @Step("Check hobby '{dataCyLabel}'")
+    public PracticeFormPage checkHobby(String dataCyLabel) {
         driver.findElement(hobbyLabel(dataCyLabel)).click();
+        return this;
     }
 
+    @Step("Check if hobby checkbox {checkboxIndex} is checked")
     public boolean isHobbyChecked(int checkboxIndex) {
         return driver.findElement(hobbyCheckbox(checkboxIndex)).isSelected();
     }
 
-    public void openDatePicker() {
+    @Step("Open date picker")
+    public PracticeFormPage openDatePicker() {
         driver.findElement(DATE_OF_BIRTH_INPUT).click();
         wait.until(ExpectedConditions.visibilityOfElementLocated(DATEPICKER_POPUP));
+        return this;
     }
 
+    @Step("Check if date picker is visible")
     public boolean isDatePickerVisible() {
         return !driver.findElements(DATEPICKER_POPUP).isEmpty()
                 && driver.findElement(DATEPICKER_POPUP).isDisplayed();
     }
 
-    public void selectDate(int month, String year, int day) {
+    @Step("Select date: month {month}, year {year}, day {day}")
+    public PracticeFormPage selectDate(int month, String year, int day) {
         new Select(driver.findElement(DP_MONTH_SELECT)).selectByValue(String.valueOf(month));
         new Select(driver.findElement(DP_YEAR_SELECT)).selectByVisibleText(year);
         wait.until(ExpectedConditions.presenceOfElementLocated(dayCell(day)));
         driver.findElement(dayCell(day)).click();
         wait.until(ExpectedConditions.invisibilityOfElementLocated(DATEPICKER_POPUP));
+        return this;
     }
 
+    @Step("Get date of birth input value")
     public String getDateValue() {
         return driver.findElement(DATE_OF_BIRTH_INPUT).getAttribute("value");
     }
 
-    public void selectCountry(String countryName) {
+    @Step("Select country '{countryName}'")
+    public PracticeFormPage selectCountry(String countryName) {
         driver.findElement(COUNTRY_CONTROL).click();
         wait.until(ExpectedConditions.visibilityOfElementLocated(COUNTRY_MENU));
         driver.findElements(COUNTRY_OPTIONS)
@@ -136,9 +162,11 @@ public class PracticeFormPage {
                 .findFirst()
                 .ifPresent(WebElement::click);
         wait.until(ExpectedConditions.textToBePresentInElementLocated(COUNTRY_DISPLAY, countryName));
+        return this;
     }
 
-    public void selectCity(String cityName) {
+    @Step("Select city '{cityName}'")
+    public PracticeFormPage selectCity(String cityName) {
         driver.findElement(CITY_CONTROL).click();
         wait.until(ExpectedConditions.visibilityOfElementLocated(CITY_MENU));
         driver.findElements(CITY_OPTIONS)
@@ -147,45 +175,58 @@ public class PracticeFormPage {
                 .findFirst()
                 .ifPresent(WebElement::click);
         wait.until(ExpectedConditions.textToBePresentInElementLocated(CITY_DISPLAY, cityName));
+        return this;
     }
 
+    @Step("Get selected country display text")
     public String getCountryDisplay() {
         return driver.findElement(COUNTRY_DISPLAY).getText();
     }
 
+    @Step("Get selected city display text")
     public String getCityDisplay() {
         return driver.findElement(CITY_DISPLAY).getText();
     }
 
-    public void openCityDropdown() {
+    @Step("Open city dropdown")
+    public PracticeFormPage openCityDropdown() {
         driver.findElement(CITY_CONTROL).click();
         wait.until(ExpectedConditions.visibilityOfElementLocated(CITY_MENU));
+        return this;
     }
 
+    @Step("Get available city options")
     public List<String> getCityOptions() {
         return driver.findElements(CITY_OPTIONS).stream()
                 .map(WebElement::getText)
                 .collect(Collectors.toList());
     }
 
-    public void submit() {
+    @Step("Submit the practice form")
+    public PracticeFormPage submit() {
         driver.findElement(SUBMIT_BTN).click();
+        return this;
     }
 
+    @Step("Check if success modal is visible")
     public boolean isSuccessModalVisible() {
         List<WebElement> modals = driver.findElements(SUCCESS_MODAL);
         return !modals.isEmpty() && modals.get(0).isDisplayed();
     }
 
+    @Step("Get success modal title text")
     public String getSuccessModalTitleText() {
         return wait.until(ExpectedConditions.visibilityOfElementLocated(MODAL_TITLE)).getText();
     }
 
-    public void closeSuccessModal() {
+    @Step("Close the success modal")
+    public PracticeFormPage closeSuccessModal() {
         driver.findElement(CLOSE_MODAL_BTN).click();
         wait.until(ExpectedConditions.invisibilityOfElementLocated(SUCCESS_MODAL));
+        return this;
     }
 
+    @Step("Get field value for id '{id}'")
     public String getFieldValue(String id) {
         return driver.findElement(By.id(id)).getAttribute("value");
     }

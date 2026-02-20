@@ -1,5 +1,6 @@
 package com.example.pages;
 
+import io.qameta.allure.Step;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
@@ -25,26 +26,33 @@ public class ButtonsPage {
         this.wait = wait;
     }
 
-    public void navigate(String baseUrl) {
+    @Step("Navigate to Buttons page")
+    public ButtonsPage navigate(String baseUrl) {
         driver.get(baseUrl + "/buttons");
         wait.until(ExpectedConditions.jsReturnsValue("return document.readyState === 'complete';"));
+        return this;
     }
 
-    public void doubleClick() {
+    @Step("Double-click the Double Click button")
+    public ButtonsPage doubleClick() {
         WebElement button = wait.until(ExpectedConditions.presenceOfElementLocated(DOUBLE_CLICK_BTN));
         scrollToElement(button);
         wait.until(ExpectedConditions.elementToBeClickable(button));
         new Actions(driver).doubleClick(button).perform();
+        return this;
     }
 
-    public void rightClick() {
+    @Step("Right-click the Right Click button")
+    public ButtonsPage rightClick() {
         WebElement button = wait.until(ExpectedConditions.presenceOfElementLocated(RIGHT_CLICK_BTN));
         scrollToElement(button);
         wait.until(ExpectedConditions.elementToBeClickable(button));
         new Actions(driver).contextClick(button).perform();
+        return this;
     }
 
-    public void dynamicClick() {
+    @Step("Click the Dynamic Click button")
+    public ButtonsPage dynamicClick() {
         WebElement button = wait.until(ExpectedConditions.presenceOfElementLocated(DYNAMIC_CLICK_BTN));
         scrollToElement(button);
         wait.until(ExpectedConditions.elementToBeClickable(button));
@@ -53,28 +61,35 @@ public class ButtonsPage {
         } catch (Exception e) {
             ((JavascriptExecutor) driver).executeScript("arguments[0].click();", button);
         }
+        return this;
     }
 
+    @Step("Check if double-click message is displayed")
     public boolean isDoubleClickMessageDisplayed() {
         return driver.findElement(DOUBLE_CLICK_MESSAGE).isDisplayed();
     }
 
+    @Step("Check if right-click message is displayed")
     public boolean isRightClickMessageDisplayed() {
         return driver.findElement(RIGHT_CLICK_MESSAGE).isDisplayed();
     }
 
+    @Step("Check if dynamic-click message is displayed")
     public boolean isDynamicClickMessageDisplayed() {
         return driver.findElement(DYNAMIC_CLICK_MESSAGE).isDisplayed();
     }
 
+    @Step("Get double-click message text")
     public String getDoubleClickMessageText() {
         return wait.until(ExpectedConditions.visibilityOfElementLocated(DOUBLE_CLICK_MESSAGE)).getText();
     }
 
+    @Step("Get right-click message text")
     public String getRightClickMessageText() {
         return wait.until(ExpectedConditions.visibilityOfElementLocated(RIGHT_CLICK_MESSAGE)).getText();
     }
 
+    @Step("Get dynamic-click message text")
     public String getDynamicClickMessageText() {
         return wait.until(ExpectedConditions.visibilityOfElementLocated(DYNAMIC_CLICK_MESSAGE)).getText();
     }
@@ -82,10 +97,5 @@ public class ButtonsPage {
     private void scrollToElement(WebElement element) {
         ((JavascriptExecutor) driver).executeScript(
                 "arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", element);
-        try {
-            Thread.sleep(300);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
     }
 }

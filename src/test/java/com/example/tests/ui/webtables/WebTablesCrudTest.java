@@ -2,6 +2,7 @@ package com.example.tests.ui.webtables;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
+import org.testng.asserts.SoftAssert;
 
 public class WebTablesCrudTest extends BaseWebTablesTest {
 
@@ -66,9 +67,11 @@ public class WebTablesCrudTest extends BaseWebTablesTest {
     public void testEditModalPrePopulated() {
         webTablesPage.clickEdit(1);
 
-        Assert.assertEquals(webTablesPage.getModalFieldValue("modal-first-name"),
+        SoftAssert soft = new SoftAssert();
+        soft.assertEquals(webTablesPage.getModalFieldValue("modal-first-name"),
                 "Cierra", "Modal should be pre-filled with existing first name");
-        Assert.assertEquals(webTablesPage.getModalFieldValue("modal-last-name"),
+        soft.assertEquals(webTablesPage.getModalFieldValue("modal-last-name"),
                 "Vega", "Modal should be pre-filled with existing last name");
+        soft.assertAll();
     }
 }
