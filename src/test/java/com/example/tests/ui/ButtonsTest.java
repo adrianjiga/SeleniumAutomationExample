@@ -5,21 +5,16 @@ import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 public class ButtonsTest extends BaseUITest {
 
-    private static final Logger log = LoggerFactory.getLogger(ButtonsTest.class);
-
     @BeforeMethod
     public void navigateToPage() {
         driver.get(BASE_URL + "/buttons");
         wait.until(ExpectedConditions.jsReturnsValue("return document.readyState === 'complete';"));
-        removeAds();
     }
 
     @Test(description = "Should interact with double click button")
@@ -34,7 +29,7 @@ public class ButtonsTest extends BaseUITest {
         actions.doubleClick(doubleClickButton).perform();
 
         WebElement message = wait.until(
-                ExpectedConditions.presenceOfElementLocated(By.id("doubleClickMessage"))
+                ExpectedConditions.visibilityOfElementLocated(By.id("doubleClickMessage"))
         );
 
         Assert.assertTrue(message.getText().contains("You have done a double click"),
@@ -53,19 +48,17 @@ public class ButtonsTest extends BaseUITest {
         actions.contextClick(rightClickButton).perform();
 
         WebElement message = wait.until(
-                ExpectedConditions.presenceOfElementLocated(By.id("rightClickMessage"))
+                ExpectedConditions.visibilityOfElementLocated(By.id("rightClickMessage"))
         );
 
         Assert.assertTrue(message.getText().contains("You have done a right click"),
                 "Right click message should be displayed. Actual: " + message.getText());
     }
 
-    @Test(description = "Should interact with dynamic button")
+    @Test(description = "Should interact with dynamic click button")
     public void testDynamicClick() {
         WebElement dynamicButton = wait.until(
-                ExpectedConditions.presenceOfElementLocated(
-                        By.xpath("//div[contains(@class,'mt-4')]//button[text()='Click Me']")
-                )
+                ExpectedConditions.presenceOfElementLocated(By.cssSelector("[data-cy='dynamic-click-btn']"))
         );
 
         scrollToElement(dynamicButton);
@@ -78,11 +71,41 @@ public class ButtonsTest extends BaseUITest {
         }
 
         WebElement message = wait.until(
-                ExpectedConditions.presenceOfElementLocated(By.id("dynamicClickMessage"))
+                ExpectedConditions.visibilityOfElementLocated(By.id("dynamicClickMessage"))
         );
 
         Assert.assertTrue(message.getText().contains("You have done a dynamic click"),
                 "Dynamic click message should be displayed. Actual: " + message.getText());
+    }
+
+    @Test(description = "Should show only the triggered message, not others")
+    public void testMessagesAreHiddenByDefault() {
+        Assert.assertFalse(
+                driver.findElement(By.id("doubleClickMessage")).isDisplayed(),
+                "Double click message should be hidden before interaction"
+        );
+        Assert.assertFalse(
+                driver.findElement(By.id("rightClickMessage")).isDisplayed(),
+                "Right click message should be hidden before interaction"
+        );
+        Assert.assertFalse(
+                driver.findElement(By.id("dynamicClickMessage")).isDisplayed(),
+                "Dynamic click message should be hidden before interaction"
+        );
+    }
+
+    @Test(description = "Should show only double-click message after double clicking")
+    public void testOnlyDoubleClickMessageShownAfterDoubleClick() {
+        WebElement doubleClickButton = wait.until(
+                ExpectedConditions.elementToBeClickable(By.id("doubleClickBtn"))
+        );
+
+        new Actions(driver).doubleClick(doubleClickButton).perform();
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("doubleClickMessage")));
+
+        Assert.assertTrue(driver.findElement(By.id("doubleClickMessage")).isDisplayed());
+        Assert.assertFalse(driver.findElement(By.id("rightClickMessage")).isDisplayed());
+        Assert.assertFalse(driver.findElement(By.id("dynamicClickMessage")).isDisplayed());
     }
 
     private void scrollToElement(WebElement element) {
@@ -91,22 +114,9 @@ public class ButtonsTest extends BaseUITest {
                 element
         );
         try {
-            Thread.sleep(500);
+            Thread.sleep(300);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-        }
-    }
-
-    private void removeAds() {
-        try {
-            JavascriptExecutor js = (JavascriptExecutor) driver;
-            js.executeScript(
-                    "var ads = document.querySelectorAll('[id*=\"google_ads\"], [id*=\"ad-\"], [class*=\"adsbygoogle\"], iframe[src*=\"googlesyndication\"]');" +
-                            "ads.forEach(function(ad) { ad.remove(); });"
-            );
-            Thread.sleep(500);
-        } catch (Exception e) {
-            log.error("e: ", e);
         }
     }
 }

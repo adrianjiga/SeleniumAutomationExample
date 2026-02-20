@@ -15,7 +15,7 @@ import java.util.Map;
 public class BaseUITest {
     protected WebDriver driver;
     protected WebDriverWait wait;
-    protected static final String BASE_URL = "https://demoqa.com";
+    protected static final String BASE_URL = "https://adrianjiga.github.io/qa/helpers";
 
     @BeforeMethod
     public void setUp() {
