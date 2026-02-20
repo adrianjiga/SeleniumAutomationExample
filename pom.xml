@@ -21,6 +21,8 @@
         <testng.version>7.12.0</testng.version>
         <webdrivermanager.version>6.3.3</webdrivermanager.version>
         <maven-surefire-plugin.version>3.5.4</maven-surefire-plugin.version>
+        <allure.version>2.29.1</allure.version>
+        <aspectj.version>1.9.25</aspectj.version>
         <!-- Default test suite - can be overridden with -DsuiteXmlFile=testng-api.xml -->
         <suiteXmlFile>testng.xml</suiteXmlFile>
     </properties>
@@ -57,9 +59,27 @@
         </dependency>
 
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-simple</artifactId>
-            <version>2.0.17</version>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>1.5.12</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+            <version>3.26.3</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.qameta.allure</groupId>
+            <artifactId>allure-testng</artifactId>
+            <version>${allure.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.aspectj</groupId>
+            <artifactId>aspectjweaver</artifactId>
+            <version>${aspectj.version}</version>
         </dependency>
     </dependencies>
 
@@ -73,7 +93,7 @@
                     <suiteXmlFiles>
                         <suiteXmlFile>${suiteXmlFile}</suiteXmlFile>
                     </suiteXmlFiles>
-                    <rerunFailingTestsCount>2</rerunFailingTestsCount>
+                    <argLine>-javaagent:${settings.localRepository}/org/aspectj/aspectjweaver/${aspectj.version}/aspectjweaver-${aspectj.version}.jar</argLine>
                 </configuration>
             </plugin>
         </plugins>

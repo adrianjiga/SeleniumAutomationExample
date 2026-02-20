@@ -18,14 +18,13 @@ public class SiteApiTest extends BaseApiTest {
                 .header("Content-Type", containsString("text/html"));
     }
 
-    @Test(description = "Should return an error response for a non-existent page")
+    @Test(description = "Should return 404 for a non-existent page")
     public void testNonExistentPageReturns404() {
         given()
                 .spec(requestSpec)
-                .redirects().follow(false)
         .when()
                 .get("/this-page-does-not-exist-xyz")
         .then()
-                .statusCode(anyOf(equalTo(301), equalTo(302), equalTo(404)));
+                .statusCode(404);
     }
 }

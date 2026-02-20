@@ -1,40 +1,42 @@
 package com.example.tests.ui.buttons;
 
+import com.example.pages.ButtonsPage;
 import com.example.tests.ui.BaseUITest;
-import org.openqa.selenium.By;
-import org.openqa.selenium.interactions.Actions;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+import org.testng.asserts.SoftAssert;
 
 public class ButtonsVisibilityTest extends BaseUITest {
 
+    private ButtonsPage buttonsPage;
+
     @BeforeMethod
     public void navigateToPage() {
-        driver.get(BASE_URL + "/buttons");
-        wait.until(ExpectedConditions.jsReturnsValue("return document.readyState === 'complete';"));
+        buttonsPage = new ButtonsPage(driver, wait);
+        buttonsPage.navigate(BASE_URL);
     }
 
     @Test(description = "Should show only the triggered message, not others")
     public void testMessagesAreHiddenByDefault() {
-        Assert.assertFalse(driver.findElement(By.id("doubleClickMessage")).isDisplayed(),
+        SoftAssert soft = new SoftAssert();
+        soft.assertFalse(buttonsPage.isDoubleClickMessageDisplayed(),
                 "Double click message should be hidden before interaction");
-        Assert.assertFalse(driver.findElement(By.id("rightClickMessage")).isDisplayed(),
+        soft.assertFalse(buttonsPage.isRightClickMessageDisplayed(),
                 "Right click message should be hidden before interaction");
-        Assert.assertFalse(driver.findElement(By.id("dynamicClickMessage")).isDisplayed(),
+        soft.assertFalse(buttonsPage.isDynamicClickMessageDisplayed(),
                 "Dynamic click message should be hidden before interaction");
+        soft.assertAll();
     }
 
     @Test(description = "Should show only double-click message after double clicking")
     public void testOnlyDoubleClickMessageShownAfterDoubleClick() {
-        new Actions(driver)
-                .doubleClick(wait.until(ExpectedConditions.elementToBeClickable(By.id("doubleClickBtn"))))
-                .perform();
-        wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("doubleClickMessage")));
+        buttonsPage.doubleClick();
+        buttonsPage.getDoubleClickMessageText(); // wait for message visibility
 
-        Assert.assertTrue(driver.findElement(By.id("doubleClickMessage")).isDisplayed());
-        Assert.assertFalse(driver.findElement(By.id("rightClickMessage")).isDisplayed());
-        Assert.assertFalse(driver.findElement(By.id("dynamicClickMessage")).isDisplayed());
+        SoftAssert soft = new SoftAssert();
+        soft.assertTrue(buttonsPage.isDoubleClickMessageDisplayed());
+        soft.assertFalse(buttonsPage.isRightClickMessageDisplayed());
+        soft.assertFalse(buttonsPage.isDynamicClickMessageDisplayed());
+        soft.assertAll();
     }
 }

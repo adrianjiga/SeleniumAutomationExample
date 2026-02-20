@@ -1,6 +1,7 @@
 package com.example.tests.api;
 
 import io.restassured.response.Response;
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import static io.restassured.RestAssured.given;
@@ -59,7 +60,7 @@ public class WebTablesPageApiTest extends BaseApiTest {
 
         String body = response.getBody().asString();
         for (String col : new String[]{"First Name", "Last Name", "Age", "Email", "Salary", "Department", "Actions"}) {
-            assert body.contains(col) : "Column header missing: " + col;
+            Assert.assertTrue(body.contains(col), "Column header missing: " + col);
         }
     }
 }

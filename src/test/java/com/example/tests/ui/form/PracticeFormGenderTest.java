@@ -1,32 +1,45 @@
 package com.example.tests.ui.form;
 
-import org.openqa.selenium.By;
 import org.testng.Assert;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
+import org.testng.asserts.SoftAssert;
 
 public class PracticeFormGenderTest extends BasePracticeFormTest {
 
-    @Test(description = "Should select Male gender radio button")
-    public void testSelectMaleGender() {
-        driver.findElement(By.cssSelector("label[for='gender-radio-1']")).click();
-        Assert.assertTrue(driver.findElement(By.id("gender-radio-1")).isSelected(), "Male radio should be selected");
-        Assert.assertFalse(driver.findElement(By.id("gender-radio-2")).isSelected(), "Female radio should not be selected");
+    @DataProvider(name = "genderSelections")
+    public Object[][] genderSelections() {
+        // {radioToSelect, radioToCheckIsDeselected}
+        return new Object[][] {
+            {1, 2},   // Male selected → Female deselected
+            {2, 1},   // Female selected → Male deselected
+            {3, 1},   // Other selected → Male deselected
+        };
     }
 
-    @Test(description = "Should select Female gender radio button")
-    public void testSelectFemaleGender() {
-        driver.findElement(By.cssSelector("label[for='gender-radio-2']")).click();
-        Assert.assertTrue(driver.findElement(By.id("gender-radio-2")).isSelected(), "Female radio should be selected");
-        Assert.assertFalse(driver.findElement(By.id("gender-radio-1")).isSelected(), "Male radio should not be selected");
+    @Test(dataProvider = "genderSelections",
+          description = "Should select the correct gender radio and deselect the other")
+    public void testGenderRadioSelection(int radioToSelect, int otherRadio) {
+        formPage.selectGender(radioToSelect);
+
+        SoftAssert soft = new SoftAssert();
+        soft.assertTrue(formPage.isGenderSelected(radioToSelect),
+                "Radio " + radioToSelect + " should be selected");
+        soft.assertFalse(formPage.isGenderSelected(otherRadio),
+                "Radio " + otherRadio + " should not be selected");
+        soft.assertAll();
     }
 
     @Test(description = "Should switch gender selection when a different radio is clicked")
     public void testGenderRadioSwitching() {
-        driver.findElement(By.cssSelector("label[for='gender-radio-1']")).click();
-        Assert.assertTrue(driver.findElement(By.id("gender-radio-1")).isSelected());
+        formPage.selectGender(1);
+        Assert.assertTrue(formPage.isGenderSelected(1));
 
-        driver.findElement(By.cssSelector("label[for='gender-radio-3']")).click();
-        Assert.assertTrue(driver.findElement(By.id("gender-radio-3")).isSelected());
-        Assert.assertFalse(driver.findElement(By.id("gender-radio-1")).isSelected());
+        formPage.selectGender(3);
+
+        SoftAssert soft = new SoftAssert();
+        soft.assertTrue(formPage.isGenderSelected(3));
+        soft.assertFalse(formPage.isGenderSelected(1));
+        soft.assertAll();
     }
 }

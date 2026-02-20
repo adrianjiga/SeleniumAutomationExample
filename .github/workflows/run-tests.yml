@@ -193,6 +193,7 @@ jobs:
           name: test-reports-api
           path: |
             target/surefire-reports/
+            target/allure-results/
           if-no-files-found: ignore
           retention-days: 14
 
@@ -284,6 +285,7 @@ jobs:
           name: test-reports-ui
           path: |
             target/surefire-reports/
+            target/allure-results/
             target/screenshots/
           if-no-files-found: ignore
           retention-days: 14
