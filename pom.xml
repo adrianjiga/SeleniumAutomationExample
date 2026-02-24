@@ -20,8 +20,8 @@
         <restassured.version>6.0.0</restassured.version>
         <testng.version>7.12.0</testng.version>
         <webdrivermanager.version>6.3.3</webdrivermanager.version>
+        <allure.version>2.33.0</allure.version>
         <maven-surefire-plugin.version>3.5.5</maven-surefire-plugin.version>
-        <allure.version>2.29.1</allure.version>
         <aspectj.version>1.9.25.1</aspectj.version>
         <!-- Default test suite - can be overridden with -DsuiteXmlFile=testng-api.xml -->
         <suiteXmlFile>testng.xml</suiteXmlFile>
