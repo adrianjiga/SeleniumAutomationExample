@@ -22,7 +22,7 @@
         <webdrivermanager.version>6.3.3</webdrivermanager.version>
         <maven-surefire-plugin.version>3.5.4</maven-surefire-plugin.version>
         <allure.version>2.29.1</allure.version>
-        <aspectj.version>1.9.25</aspectj.version>
+        <aspectj.version>1.9.25.1</aspectj.version>
         <!-- Default test suite - can be overridden with -DsuiteXmlFile=testng-api.xml -->
         <suiteXmlFile>testng.xml</suiteXmlFile>
     </properties>
