@@ -16,6 +16,8 @@ public class PracticeFormSubmissionTest extends BasePracticeFormTest {
         formPage.setAddress("123 Main Street");
         formPage.selectCountry("Germany");
         formPage.selectCity("Berlin");
+        formPage.openDatePicker();
+        formPage.selectDate(0, "1990", 15);
         formPage.submit();
 
         Assert.assertTrue(formPage.isSuccessModalVisible(), "Success modal should be visible after submit");
@@ -57,5 +59,7 @@ public class PracticeFormSubmissionTest extends BasePracticeFormTest {
         formPage.setLastName("User");
         formPage.setPhone("1234567890");
         formPage.selectGender(1);
+        formPage.openDatePicker();
+        formPage.selectDate(0, "1990", 1);
     }
 }
