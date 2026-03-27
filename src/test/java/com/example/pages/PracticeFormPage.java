@@ -61,7 +61,7 @@ public class PracticeFormPage {
     }
 
     private static By dayCell(int day) {
-        return By.cssSelector("[data-cy='day-" + day + "']");
+        return By.cssSelector("[data-cy='day-" + String.format("%02d", day) + "']");
     }
 
     @Step("Navigate to Practice Form page")
