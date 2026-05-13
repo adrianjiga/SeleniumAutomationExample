@@ -181,7 +181,7 @@ jobs:
 
       - name: Generate Test Summary
         if: always()
-        uses: test-summary/action@31493c76ec9e7aa675f1585d3ed6f1da69269a86 # v2.4
+        uses: test-summary/action@37b508cfee6d4d080eedd00b5bb240a6a784a6a5 # v2.6
         with:
           paths: target/surefire-reports/TEST-*.xml
           show: all
@@ -247,7 +247,7 @@ jobs:
           key: ${{ needs.build.outputs.cache-key }}
 
       - name: Setup Chrome
-        uses: browser-actions/setup-chrome@4f8e94349a351df0f048634f25fec36c3c91eded #v2.1.1
+        uses: browser-actions/setup-chrome@2e1d749697dd1612b833dba4a722266286fbefcd #v2.1.2
         with:
           chrome-version: stable
           install-dependencies: true
@@ -273,7 +273,7 @@ jobs:
 
       - name: Generate Test Summary
         if: always()
-        uses: test-summary/action@31493c76ec9e7aa675f1585d3ed6f1da69269a86 # v2.4
+        uses: test-summary/action@37b508cfee6d4d080eedd00b5bb240a6a784a6a5 # v2.6
         with:
           paths: target/surefire-reports/TEST-*.xml
           show: all
