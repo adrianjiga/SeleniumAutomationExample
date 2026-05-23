@@ -7,10 +7,8 @@
 
     <test name="API Tests">
         <classes>
-            <class name="com.example.tests.api.SiteApiTest"/>
-            <class name="com.example.tests.api.ButtonsPageApiTest"/>
-            <class name="com.example.tests.api.WebTablesPageApiTest"/>
-            <class name="com.example.tests.api.PracticeFormPageApiTest"/>
+            <class name="com.example.tests.api.PostsApiTest"/>
+            <class name="com.example.tests.api.CommentsApiTest"/>
         </classes>
     </test>
 
