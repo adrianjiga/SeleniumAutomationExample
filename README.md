@@ -50,31 +50,62 @@ SeleniumAutomationExample/
 │   └── workflows/
 │       ├── run-ci.yml
 │       └── run-tests.yml
-├── src/test/java/com/example/tests/
-│   ├── api/
-│   │   ├── BaseApiTest.java
-│   │   ├── SiteApiTest.java
-│   │   ├── ButtonsPageApiTest.java
-│   │   ├── WebTablesPageApiTest.java
-│   │   └── PracticeFormPageApiTest.java
-│   └── ui/
-│       ├── BaseUITest.java
-│       ├── buttons/
-│       │   ├── ButtonsClickTest.java
-│       │   └── ButtonsVisibilityTest.java
-│       ├── webtables/
-│       │   ├── BaseWebTablesTest.java
-│       │   ├── WebTablesDefaultDataTest.java
-│       │   ├── WebTablesSearchTest.java
-│       │   ├── WebTablesCrudTest.java
-│       │   └── WebTablesPaginationTest.java
-│       └── form/
-│           ├── BasePracticeFormTest.java
-│           ├── PracticeFormSubmissionTest.java
-│           ├── PracticeFormGenderTest.java
-│           ├── PracticeFormHobbiesTest.java
-│           ├── PracticeFormDatePickerTest.java
-│           └── PracticeFormLocationTest.java
+├── src/test/
+│   ├── java/com/example/
+│   │   ├── config/
+│   │   │   └── ConfigManager.java
+│   │   ├── listeners/
+│   │   │   ├── RetryAnalyzer.java
+│   │   │   ├── RetryListener.java
+│   │   │   └── ScreenshotListener.java
+│   │   ├── pages/
+│   │   │   ├── ButtonsPage.java
+│   │   │   ├── PracticeFormPage.java
+│   │   │   └── WebTablesPage.java
+│   │   └── tests/
+│   │       ├── api/
+│   │       │   ├── BaseApiTest.java
+│   │       │   ├── PostsApiTest.java
+│   │       │   ├── CommentsApiTest.java
+│   │       │   ├── UsersApiTest.java
+│   │       │   ├── TodosApiTest.java
+│   │       │   ├── NestedRoutesApiTest.java
+│   │       │   └── QueryFeaturesApiTest.java
+│   │       └── ui/
+│   │           ├── BaseUITest.java
+│   │           ├── buttons/
+│   │           │   ├── ButtonsClickTest.java
+│   │           │   └── ButtonsVisibilityTest.java
+│   │           ├── webtables/
+│   │           │   ├── BaseWebTablesTest.java
+│   │           │   ├── WebTablesDefaultDataTest.java
+│   │           │   ├── WebTablesSearchTest.java
+│   │           │   ├── WebTablesCrudTest.java
+│   │           │   └── WebTablesPaginationTest.java
+│   │           └── form/
+│   │               ├── BasePracticeFormTest.java
+│   │               ├── PracticeFormSubmissionTest.java
+│   │               ├── PracticeFormGenderTest.java
+│   │               ├── PracticeFormHobbiesTest.java
+│   │               ├── PracticeFormDatePickerTest.java
+│   │               └── PracticeFormLocationTest.java
+│   └── resources/
+│       ├── allure.properties
+│       ├── config.properties
+│       ├── logback.xml
+│       ├── fixtures/
+│       │   └── post.json
+│       └── schemas/
+│           ├── post-schema.json
+│           ├── posts-array-schema.json
+│           ├── comment-schema.json
+│           ├── comments-array-schema.json
+│           ├── user-schema.json
+│           ├── users-array-schema.json
+│           ├── todo-schema.json
+│           ├── todos-array-schema.json
+│           ├── photo-schema.json
+│           └── photos-array-schema.json
 ├── pom.xml
 ├── testng.xml
 ├── testng-api.xml
@@ -86,7 +117,7 @@ SeleniumAutomationExample/
 | Technology | Version | Purpose |
 |------------|---------|---------|
 | Selenium WebDriver | 4.40.0 | Browser automation |
-| REST Assured | 6.0.0 | API / HTTP testing |
+| REST Assured | 6.0.0 | JSON API testing (with JSON Schema validation) |
 | TestNG | 7.12.0 | Test framework |
 | WebDriverManager | 6.3.3 | Automatic ChromeDriver management |
 | Java | 17 | Runtime |
@@ -94,16 +125,18 @@ SeleniumAutomationExample/
 
 ## Test Coverage
 
-### API Tests — 14 tests total
+### API Tests — 21 tests total
 
-HTTP-level tests against the QA Helpers site (`https://adrianjiga.github.io/qa/helpers`):
+JSON API tests against the [JSONPlaceholder](https://jsonplaceholder.typicode.com) mock API, with JSON Schema (Draft-07) validation:
 
 | Class | Tests |
 |---|---|
-| `SiteApiTest` | Index page loads (200), non-existent page returns 4xx |
-| `ButtonsPageApiTest` | Page loads, all button elements present, all message elements present |
-| `WebTablesPageApiTest` | Page loads, table structure, pagination controls, correct column headers |
-| `PracticeFormPageApiTest` | Page loads, required fields, gender radios, hobby checkboxes, country options |
+| `PostsApiTest` | List 100 posts, get-by-id (fixture), 404, create (201 echo), delete, **PUT replace**, **PATCH partial**, filter by `userId` |
+| `CommentsApiTest` | Filter comments by `postId` query param (schema-validated, all items match the filter) |
+| `UsersApiTest` | List 10 users, get-by-id with nested `address.geo` and `company` schema validation |
+| `TodosApiTest` | List 200 todos, filter by `completed=true` boolean |
+| `NestedRoutesApiTest` | `/posts/1/comments`, `/users/1/posts`, `/albums/1/photos` — each asserts parent-id integrity |
+| `QueryFeaturesApiTest` | Pagination + `X-Total-Count` + RFC 5988 `Link` header parsing (all 4 rels), sort, slice, full-text `q=`, empty-filter returns `[]` not 404 |
 
 ### UI Tests
 
@@ -127,14 +160,14 @@ Tests against the [Web Tables page](https://adrianjiga.github.io/qa/helpers/webt
 | `WebTablesCrudTest` | Add record, cancel modal, delete record, delete specific row, edit record, modal pre-populated |
 | `WebTablesPaginationTest` | Default page state, rows-per-page selector |
 
-#### Practice Form — 13 tests
+#### Practice Form — 14 tests
 
 Tests against the [Automation Practice Form](https://adrianjiga.github.io/qa/helpers/automation-practice-form):
 
 | Class | Tests |
 |---|---|
 | `PracticeFormSubmissionTest` | Full form submission, modal close, text fields accept input |
-| `PracticeFormGenderTest` | Select Male, select Female, switch between selections |
+| `PracticeFormGenderTest` | Select Male, select Female, select Other (data-driven), switch between selections |
 | `PracticeFormHobbiesTest` | Check one hobby, check multiple independently, uncheck |
 | `PracticeFormDatePickerTest` | Opens popup, selects a date and verifies input value |
 | `PracticeFormLocationTest` | Cities populate after country selection, select country and city |
