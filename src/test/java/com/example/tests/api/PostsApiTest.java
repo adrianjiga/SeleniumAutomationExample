@@ -88,6 +88,58 @@ public class PostsApiTest extends BaseApiTest {
                 .statusCode(200);
     }
 
+    @Test(description = "PUT /posts/{id} replaces the full post and returns 200")
+    public void testUpdatePostWithPut() {
+        Map<String, Object> replacement = Map.of(
+                "id", 1,
+                "userId", 1,
+                "title", "put title",
+                "body", "put body"
+        );
+
+        given()
+                .spec(requestSpec)
+                .body(replacement)
+        .when()
+                .put("/posts/1")
+        .then()
+                .statusCode(200)
+                .body("id", equalTo(1))
+                .body("userId", equalTo(1))
+                .body("title", equalTo("put title"))
+                .body("body", equalTo("put body"));
+    }
+
+    @Test(description = "PATCH /posts/{id} updates only the supplied field and preserves the rest")
+    public void testPartialUpdatePostWithPatch() {
+        given()
+                .spec(requestSpec)
+                .body(Map.of("title", "patched title"))
+        .when()
+                .patch("/posts/1")
+        .then()
+                .statusCode(200)
+                .body("id", equalTo(1))
+                .body("userId", equalTo(1))
+                .body("title", equalTo("patched title"))
+                .body("body", notNullValue());
+    }
+
+    @Test(description = "GET /posts?userId=1 returns only posts belonging to that user")
+    public void testFilterPostsByUserId() {
+        int targetUserId = 1;
+
+        given()
+                .spec(requestSpec)
+                .queryParam("userId", targetUserId)
+        .when()
+                .get("/posts")
+        .then()
+                .statusCode(200)
+                .body("size()", equalTo(10))
+                .body("findAll { it.userId != " + targetUserId + " }.size()", equalTo(0));
+    }
+
     private String loadFixture() throws IOException {
         try (InputStream in = Objects.requireNonNull(
                 getClass().getClassLoader().getResourceAsStream("fixtures/post.json"),
