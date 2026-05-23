@@ -18,26 +18,26 @@ mvn test -DsuiteXmlFile=testng-api.xml
 mvn test -DsuiteXmlFile=testng-ui.xml
 
 # Run a single test class
-mvn test -Dtest=SiteApiTest
+mvn test -Dtest=PostsApiTest
 mvn test -Dtest=WebTablesCrudTest
 mvn test -Dtest=PracticeFormSubmissionTest
 mvn test -Dtest=ButtonsClickTest
 
 # Run a single test method
 mvn test -Dtest=WebTablesCrudTest#testAddNewRecord
-mvn test -Dtest=ButtonsPageApiTest#testButtonsPageLoads
+mvn test -Dtest=PostsApiTest#testGetPostByIdMatchesFixture
 ```
 
 ## Architecture
 
-This is a Maven-based test automation project using TestNG as the test framework. All tests target the static QA Helpers site at `https://adrianjiga.github.io/qa/helpers`.
+This is a Maven-based test automation project using TestNG as the test framework. API tests target the public JSONPlaceholder mock API (`https://jsonplaceholder.typicode.com`); UI tests target the static QA Helpers site at `https://adrianjiga.github.io/qa/helpers`.
 
 ### Test Structure
 
 - **API Tests** (`src/test/java/com/example/tests/api/`)
-  - Extend `BaseApiTest` which configures REST Assured with base URI `https://adrianjiga.github.io` and base path `/qa/helpers`
-  - Use REST Assured for HTTP-level assertions (status codes, content-type headers, HTML body content)
-  - Target site is static (GitHub Pages) — no REST API exists; tests verify the HTTP interface of each page
+  - Extend `BaseApiTest` which configures REST Assured with base URI `https://jsonplaceholder.typicode.com`, `Accept: application/json`, and `Content-Type: application/json`
+  - JSON body assertions via Hamcrest matchers and JSON Schema (Draft-07) validation via `matchesJsonSchemaInClasspath`
+  - Schemas live in `src/test/resources/schemas/`; the fixture for the get-by-id test lives in `src/test/resources/fixtures/post.json`
 
 - **UI Tests** (`src/test/java/com/example/tests/ui/`)
   - Extend `BaseUITest` which handles WebDriver lifecycle (setup/teardown per method)
@@ -49,12 +49,10 @@ This is a Maven-based test automation project using TestNG as the test framework
 
 **API** (`src/test/java/com/example/tests/api/`):
 
-| Class | Page | Tests |
+| Class | Endpoint | Tests |
 |---|---|---|
-| `SiteApiTest` | index + 404 | 2 |
-| `ButtonsPageApiTest` | `/buttons` | 3 |
-| `WebTablesPageApiTest` | `/webtables` | 4 |
-| `PracticeFormPageApiTest` | `/automation-practice-form` | 5 |
+| `PostsApiTest` | `/posts`, `/posts/{id}` | 5 |
+| `CommentsApiTest` | `/comments?postId=` | 1 |
 
 **UI** — split into subpackages under `src/test/java/com/example/tests/ui/`:
 
@@ -67,7 +65,7 @@ This is a Maven-based test automation project using TestNG as the test framework
 | `ui.webtables` | `WebTablesCrudTest` | `/webtables` | 6 |
 | `ui.webtables` | `WebTablesPaginationTest` | `/webtables` | 2 |
 | `ui.form` | `PracticeFormSubmissionTest` | `/automation-practice-form` | 3 |
-| `ui.form` | `PracticeFormGenderTest` | `/automation-practice-form` | 3 |
+| `ui.form` | `PracticeFormGenderTest` | `/automation-practice-form` | 4 |
 | `ui.form` | `PracticeFormHobbiesTest` | `/automation-practice-form` | 3 |
 | `ui.form` | `PracticeFormDatePickerTest` | `/automation-practice-form` | 2 |
 | `ui.form` | `PracticeFormLocationTest` | `/automation-practice-form` | 2 |
