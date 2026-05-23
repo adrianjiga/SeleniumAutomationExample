@@ -31,7 +31,7 @@ public class PostsApiTest extends BaseApiTest {
 
     @Test(description = "GET /posts/{id} returns a post matching the fixture and schema")
     public void testGetPostByIdMatchesFixture() throws IOException {
-        JsonPath expected = JsonPath.from(loadFixture("fixtures/post.json"));
+        JsonPath expected = JsonPath.from(loadFixture());
 
         given()
                 .spec(requestSpec)
@@ -88,10 +88,10 @@ public class PostsApiTest extends BaseApiTest {
                 .statusCode(200);
     }
 
-    private String loadFixture(String classpathResource) throws IOException {
+    private String loadFixture() throws IOException {
         try (InputStream in = Objects.requireNonNull(
-                getClass().getClassLoader().getResourceAsStream(classpathResource),
-                "fixture not found on classpath: " + classpathResource)) {
+                getClass().getClassLoader().getResourceAsStream("fixtures/post.json"),
+                "fixture not found on classpath: " + "fixtures/post.json")) {
             return new String(in.readAllBytes());
         }
     }
