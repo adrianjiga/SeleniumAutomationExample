@@ -9,6 +9,10 @@
         <classes>
             <class name="com.example.tests.api.PostsApiTest"/>
             <class name="com.example.tests.api.CommentsApiTest"/>
+            <class name="com.example.tests.api.UsersApiTest"/>
+            <class name="com.example.tests.api.TodosApiTest"/>
+            <class name="com.example.tests.api.NestedRoutesApiTest"/>
+            <class name="com.example.tests.api.QueryFeaturesApiTest"/>
         </classes>
     </test>
 
