@@ -51,8 +51,12 @@ This is a Maven-based test automation project using TestNG as the test framework
 
 | Class | Endpoint | Tests |
 |---|---|---|
-| `PostsApiTest` | `/posts`, `/posts/{id}` | 5 |
+| `PostsApiTest` | `/posts`, `/posts/{id}` (GET, POST, PUT, PATCH, DELETE, `?userId=` filter) | 8 |
 | `CommentsApiTest` | `/comments?postId=` | 1 |
+| `UsersApiTest` | `/users`, `/users/{id}` (with nested `address.geo` + `company` schemas) | 2 |
+| `TodosApiTest` | `/todos`, `/todos?completed=` | 2 |
+| `NestedRoutesApiTest` | `/posts/{id}/comments`, `/users/{id}/posts`, `/albums/{id}/photos` | 3 |
+| `QueryFeaturesApiTest` | `_page`, `_limit`, `_sort`, `_order`, `_start`, `_end`, `q=`, `X-Total-Count`, RFC 5988 `Link` header | 5 |
 
 **UI** — split into subpackages under `src/test/java/com/example/tests/ui/`:
 

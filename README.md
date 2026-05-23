@@ -66,7 +66,11 @@ SeleniumAutomationExample/
 │   │       ├── api/
 │   │       │   ├── BaseApiTest.java
 │   │       │   ├── PostsApiTest.java
-│   │       │   └── CommentsApiTest.java
+│   │       │   ├── CommentsApiTest.java
+│   │       │   ├── UsersApiTest.java
+│   │       │   ├── TodosApiTest.java
+│   │       │   ├── NestedRoutesApiTest.java
+│   │       │   └── QueryFeaturesApiTest.java
 │   │       └── ui/
 │   │           ├── BaseUITest.java
 │   │           ├── buttons/
@@ -95,7 +99,13 @@ SeleniumAutomationExample/
 │           ├── post-schema.json
 │           ├── posts-array-schema.json
 │           ├── comment-schema.json
-│           └── comments-array-schema.json
+│           ├── comments-array-schema.json
+│           ├── user-schema.json
+│           ├── users-array-schema.json
+│           ├── todo-schema.json
+│           ├── todos-array-schema.json
+│           ├── photo-schema.json
+│           └── photos-array-schema.json
 ├── pom.xml
 ├── testng.xml
 ├── testng-api.xml
@@ -115,14 +125,18 @@ SeleniumAutomationExample/
 
 ## Test Coverage
 
-### API Tests — 6 tests total
+### API Tests — 21 tests total
 
 JSON API tests against the [JSONPlaceholder](https://jsonplaceholder.typicode.com) mock API, with JSON Schema (Draft-07) validation:
 
 | Class | Tests |
 |---|---|
-| `PostsApiTest` | List 100 posts (schema-validated), get post by id (fixture match), 404 for missing post, create post (201 + echoed body), delete post |
+| `PostsApiTest` | List 100 posts, get-by-id (fixture), 404, create (201 echo), delete, **PUT replace**, **PATCH partial**, filter by `userId` |
 | `CommentsApiTest` | Filter comments by `postId` query param (schema-validated, all items match the filter) |
+| `UsersApiTest` | List 10 users, get-by-id with nested `address.geo` and `company` schema validation |
+| `TodosApiTest` | List 200 todos, filter by `completed=true` boolean |
+| `NestedRoutesApiTest` | `/posts/1/comments`, `/users/1/posts`, `/albums/1/photos` — each asserts parent-id integrity |
+| `QueryFeaturesApiTest` | Pagination + `X-Total-Count` + RFC 5988 `Link` header parsing (all 4 rels), sort, slice, full-text `q=`, empty-filter returns `[]` not 404 |
 
 ### UI Tests
 
