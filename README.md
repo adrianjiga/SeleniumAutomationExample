@@ -221,8 +221,12 @@ Full test execution:
   logs still upload, then an explicit `Fail if Tests Failed` step re-raises the failure.
   Without this, a red suite loses its own artifacts
 - **Concurrency:** in-progress runs on the same ref are cancelled
-- **Features:** test summaries, artifact uploads (reports retained 14 days), automatic
-  retries (2x, via `RetryAnalyzer` — see [Test Retries](#test-retries))
+- **Features:** test summaries, artifact uploads, automatic retries (2x, via `RetryAnalyzer`
+  — see [Test Retries](#test-retries))
+- **Artifact retention:** 30 days. Surefire XML is the input to flake analytics, so retention
+  is the hard limit on how far back that history can reach — once an artifact expires the run
+  is unrecoverable. 30 days matches the sibling Cypress and Playwright projects, so a
+  cross-project comparison covers the same window
 - **Manual dispatch:** supports `all`, `api`, or `ui` test group selection
 
 All `actions/*` references are pinned to full commit SHAs with a trailing `# vX.Y.Z` comment.

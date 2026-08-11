@@ -195,7 +195,7 @@ jobs:
             target/surefire-reports/
             target/allure-results/
           if-no-files-found: ignore
-          retention-days: 14
+          retention-days: 30
 
       - name: Upload Test Logs on Failure
         if: failure() || steps.tests.outcome == 'failure'
@@ -205,7 +205,7 @@ jobs:
           path: |
             target/surefire-reports/*.xml
             target/surefire-reports/*.txt
-          retention-days: 14
+          retention-days: 30
 
       - name: Fail if Tests Failed
         if: steps.tests.outcome == 'failure'
@@ -288,7 +288,7 @@ jobs:
             target/allure-results/
             target/screenshots/
           if-no-files-found: ignore
-          retention-days: 14
+          retention-days: 30
 
       - name: Upload Test Logs on Failure
         if: failure() || steps.tests.outcome == 'failure'
@@ -299,7 +299,7 @@ jobs:
             target/surefire-reports/*.xml
             target/surefire-reports/*.txt
             target/screenshots/
-          retention-days: 14
+          retention-days: 30
 
       - name: Fail if Tests Failed
         if: steps.tests.outcome == 'failure'
