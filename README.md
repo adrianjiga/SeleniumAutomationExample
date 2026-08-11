@@ -24,7 +24,7 @@ mvn clean install -DskipTests
 ## Running Tests
 
 ```bash
-# Run all tests (API + UI in parallel)
+# Run all tests (classes in parallel, 6 threads)
 mvn test
 
 # Run only API tests
@@ -106,20 +106,28 @@ SeleniumAutomationExample/
 │           ├── todos-array-schema.json
 │           ├── photo-schema.json
 │           └── photos-array-schema.json
+├── CLAUDE.md                 # Repo conventions, gotchas and target-site notes
+├── LICENSE
 ├── pom.xml
-├── testng.xml
-├── testng-api.xml
-└── testng-ui.xml
+├── testng.xml                # All suites  (parallel="classes", 6 threads)
+├── testng-api.xml            # API only    (sequential)
+└── testng-ui.xml             # UI only     (parallel="classes", 4 threads)
 ```
 
 ## Tech Stack
 
+Versions are declared as properties in `pom.xml` — that is the source of truth, and
+Dependabot bumps them weekly.
+
 | Technology | Version | Purpose |
 |------------|---------|---------|
-| Selenium WebDriver | 4.40.0 | Browser automation |
-| REST Assured | 6.0.0 | JSON API testing (with JSON Schema validation) |
+| Selenium WebDriver | 4.46.0 | Browser automation |
+| REST Assured | 6.0.1 | JSON API testing (with JSON Schema validation) |
 | TestNG | 7.12.0 | Test framework |
-| WebDriverManager | 6.3.3 | Automatic ChromeDriver management |
+| WebDriverManager | 6.3.4 | Automatic ChromeDriver management |
+| Allure | 2.35.4 | Test reporting (`@Step` traces, failure screenshots) |
+| AssertJ | 3.27.7 | Fluent assertions |
+| Logback | 1.6.1 | Logging |
 | Java | 17 | Runtime |
 | Maven | 3.6+ | Build & dependency management |
 
@@ -160,7 +168,11 @@ Tests against the [Web Tables page](https://adrianjiga.github.io/qa/helpers/webt
 | `WebTablesCrudTest` | Add record, cancel modal, delete record, delete specific row, edit record, modal pre-populated |
 | `WebTablesPaginationTest` | Default page state, rows-per-page selector |
 
-#### Practice Form — 14 tests
+#### Practice Form — 14 test runs (12 `@Test` methods)
+
+`PracticeFormGenderTest.testGenderRadioSelection` is data-driven via a `@DataProvider` with
+three rows, so it counts as one method but three runs. Every other count in this README is
+methods and runs alike.
 
 Tests against the [Automation Practice Form](https://adrianjiga.github.io/qa/helpers/automation-practice-form):
 
@@ -174,25 +186,40 @@ Tests against the [Automation Practice Form](https://adrianjiga.github.io/qa/hel
 
 ## CI/CD
 
+Both workflows open with a `changes` job that runs `dorny/paths-filter` to decide whether the
+API side, the UI side, or shared build files were touched. Downstream jobs gate on those
+outputs, so a PR that only edits API tests never spins up Chrome.
+
 ### CI Workflow (`run-ci.yml`)
 
-Lightweight validation on every pull request:
+Lightweight validation on every pull request — fast feedback (~2 min) without running tests:
 
-- Verifies Java and Chrome setup
+- Verifies Java, and Chrome **only if** the UI or shared paths changed
 - Resolves Maven dependencies
-- Compiles source and test code
-- Validates TestNG suite XML files
-
-Fast feedback (~2 min) without running actual tests.
+- Compiles source and test code, then caches `target/classes` and `target/test-classes`
+  under the commit SHA
+- Validates all three TestNG suite XML files with `xmllint --noout --nonet`
+  (`--nonet` skips the external DTD fetch, so the check doesn't depend on testng.org being up)
+- Writes a summary table to `$GITHUB_STEP_SUMMARY`
 
 ### Test Workflow (`run-tests.yml`)
 
 Full test execution:
 
 - **Triggers:** Pull requests to master, weekday schedule (07:00 UTC), manual dispatch
-- **Jobs:** `test-api` and `test-ui` run as separate parallel jobs on `ubuntu-latest`
-- **Features:** Test summaries, artifact uploads (reports retained 14 days), automatic retries (2x for flaky tests)
+- **Jobs:** `changes` → `build` → (`test-api`, `test-ui`) in parallel on `ubuntu-latest`
+- **Build caching:** the `build` job compiles once and publishes a cache key; both test jobs
+  restore the compiled classes instead of recompiling
+- **Failure handling:** the `mvn test` step uses `continue-on-error: true` so reports and
+  logs still upload, then an explicit `Fail if Tests Failed` step re-raises the failure.
+  Without this, a red suite loses its own artifacts
+- **Concurrency:** in-progress runs on the same ref are cancelled
+- **Features:** test summaries, artifact uploads (reports retained 14 days), automatic
+  retries (2x, via `RetryAnalyzer` — see [Test Retries](#test-retries))
 - **Manual dispatch:** supports `all`, `api`, or `ui` test group selection
+
+All `actions/*` references are pinned to full commit SHAs with a trailing `# vX.Y.Z` comment.
+SHAs are immutable, so a compromised tag cannot silently re-point at different code.
 
 ### Dependabot
 
@@ -202,35 +229,105 @@ Automated dependency updates configured for:
 
 ## Configuration
 
-### Headless Mode
+### Properties and overrides
 
-UI tests run in headless Chrome by default. To see the browser locally:
+Settings live in `src/test/resources/config.properties`:
 
-```java
-// In BaseUITest.java, comment out:
-options.addArguments("--headless=new");
+| Key | Default | Purpose |
+|---|---|---|
+| `base.url` | `https://adrianjiga.github.io/qa/helpers` | UI test target |
+| `api.base.uri` | `https://jsonplaceholder.typicode.com` | API test target |
+| `wait.timeout.seconds` | `15` | `WebDriverWait` timeout |
+| `page.load.timeout.seconds` | `30` | Page load and script timeout |
+| `headless` | `true` | Chrome headless mode |
+
+`ConfigManager.get()` reads `System.getProperty(key, props.getProperty(key))` — a JVM system
+property wins over the file. So **no source edit is needed to override anything**:
+
+```bash
+# Watch the browser drive the tests
+mvn test -DsuiteXmlFile=testng-ui.xml -Dheadless=false
+
+# Point the UI suite at a local copy of the helper site
+mvn test -DsuiteXmlFile=testng-ui.xml -Dbase.url=http://localhost:3000/qa/helpers
 ```
+
+One caveat: `BaseUITest.BASE_URL` is `static final`, so it is resolved once at class load.
+That is fine for a per-run override like the above, but it means the base URL cannot change
+between tests within a single JVM.
 
 ### Parallel Execution
 
-The main `testng.xml` runs API and UI test groups in parallel:
+Parallelism is set per suite, and the three suites differ:
 
-```xml
-<suite name="Test Suite" parallel="tests" thread-count="2">
-```
+| Suite | Setting | Why |
+|---|---|---|
+| `testng.xml` | `parallel="classes" thread-count="6"` | Full run — API and UI classes interleave across 6 threads. |
+| `testng-ui.xml` | `parallel="classes" thread-count="4"` | UI only. Lower than 6 because each class holds its own `ChromeDriver`, and browsers are the memory constraint. |
+| `testng-api.xml` | *(none — sequential)* | REST Assured calls are fast enough that thread setup costs more than it saves, and it keeps JSONPlaceholder rate limits out of play. |
+
+`parallel="classes"` is the ceiling for the current design. `BaseUITest` holds `driver` and
+`wait` as **instance fields**, which is safe when TestNG gives each class its own instance
+but would break under `parallel="methods"`. Moving to method-level parallelism requires a
+`ThreadLocal<WebDriver>` first.
 
 ### Test Retries
 
-Failed tests automatically retry up to 2 times (configured in `pom.xml`):
+Failed tests automatically retry up to 2 times. This is **not** Surefire's
+`rerunFailingTestsCount` — it is a TestNG retry analyzer, wired in two parts:
+
+- `RetryAnalyzer` (`listeners/RetryAnalyzer.java`) implements `IRetryAnalyzer` and returns
+  `true` for the first 2 failures of a test.
+- `RetryListener` (`listeners/RetryListener.java`) implements `IAnnotationTransformer` and
+  attaches that analyzer to every `@Test` that does not already declare one, so individual
+  tests never need to opt in.
+
+The listener is registered in each of the three suite XML files:
 
 ```xml
-<rerunFailingTestsCount>2</rerunFailingTestsCount>
+<listeners>
+    <listener class-name="com.example.listeners.RetryListener"/>
+</listeners>
 ```
+
+The trade-off is worth stating plainly: blanket runner-level retries make a flaky suite look
+green. They are here to absorb network jitter against a public API and a GitHub Pages host,
+not to paper over genuine races in the tests.
 
 ## Reports
 
-TestNG generates reports in `target/surefire-reports/` after test execution. GitHub Actions also provides test summaries directly in the workflow run.
+Three layers, produced by every run:
+
+| Output | Location | Notes |
+|---|---|---|
+| Surefire XML/TXT | `target/surefire-reports/` | Consumed by the CI test-summary step and by any JUnit-XML reader. |
+| Allure results | `target/allure-results/` | Raw result files; directory set in `src/test/resources/allure.properties`. |
+| CI job summary | GitHub Actions run page | Rendered by `test-summary/action` from the Surefire XML. |
+
+### Allure
+
+Page objects annotate their methods with `@Step`, so a failure renders as a readable
+sequence of actions rather than a bare stack trace:
+
+```java
+@Step("Click Edit button for row {row}")
+public WebTablesPage clickEdit(int row) { ... }
+```
+
+`ScreenshotListener` implements `ITestListener` and attaches a PNG to the Allure result on
+any UI test failure. It resolves the driver by checking `result.getInstance() instanceof
+BaseUITest`, so API test failures are skipped without special-casing.
+
+Allure requires the AspectJ weaver to be on the JVM's `-javaagent` path; `pom.xml` wires
+this into Surefire's `argLine`. Removing that argument silently disables `@Step` capture —
+the tests still pass, the report just goes blank.
+
+To view the report locally you need the Allure CLI (`brew install allure`), then:
+
+```bash
+allure serve target/allure-results
+```
 
 ## License
 
-MIT
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
