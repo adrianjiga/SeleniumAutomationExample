@@ -44,6 +44,20 @@ This is a Maven-based test automation project using TestNG as the test framework
   - Chrome runs in headless mode by default (`--headless=new`)
   - WebDriverManager handles ChromeDriver binary management automatically
   - Base URL: `https://adrianjiga.github.io/qa/helpers`
+  - Chrome is hardcoded — `setUp()` constructs `ChromeDriver` directly with no browser
+    switch. Cross-browser support needs a driver factory reading a `-Dbrowser=` property
+
+- **Configuration** — `ConfigManager` reads `System.getProperty(key, props.getProperty(key))`,
+  so any key in `config.properties` is overridable at the command line without editing
+  source: `mvn test -Dheadless=false`, `mvn test -Dbase.url=http://localhost:3000/qa/helpers`.
+  Note `BaseUITest.BASE_URL` is `static final`, so it freezes at class load — fine for a
+  per-run override, not for switching environments mid-JVM
+
+- **Reporting** — Allure. Page objects carry `@Step` annotations; `ScreenshotListener`
+  (an `ITestListener` registered via `@Listeners` on `BaseUITest`) attaches a PNG to the
+  Allure result on UI failure, guarding with `result.getInstance() instanceof BaseUITest` so
+  API failures fall through. `@Step` capture depends on the AspectJ weaver wired into
+  Surefire's `argLine` in `pom.xml` — drop that and the report silently goes blank
 
 ### Test Files
 
@@ -74,17 +88,30 @@ This is a Maven-based test automation project using TestNG as the test framework
 | `ui.form` | `PracticeFormDatePickerTest` | `/automation-practice-form` | 2 |
 | `ui.form` | `PracticeFormLocationTest` | `/automation-practice-form` | 2 |
 
+Counts are **test runs**, not `@Test` methods. The only place these differ is
+`PracticeFormGenderTest`: 2 methods, but `testGenderRadioSelection` is data-driven via a
+`@DataProvider` with 3 rows, so it contributes 4 runs.
+
 Shared base classes (no tests): `ui.webtables.BaseWebTablesTest`, `ui.form.BasePracticeFormTest`. Both extend `BaseUITest` from the parent `ui` package and require `import com.example.tests.ui.BaseUITest;`.
 
 ### TestNG Configuration
 
-- `testng.xml` — All tests (parallel execution with 2 threads)
-- `testng-api.xml` — API tests only
-- `testng-ui.xml` — UI tests only
+- `testng.xml` — All tests. `parallel="classes" thread-count="6"`
+- `testng-api.xml` — API tests only. No `parallel` attribute, so it runs sequentially
+- `testng-ui.xml` — UI tests only. `parallel="classes" thread-count="4"`
+
+All three register `com.example.listeners.RetryListener` in a `<listeners>` block.
+
+`parallel="classes"` is a hard ceiling right now: `BaseUITest` keeps `driver` and `wait` as
+instance fields, which is safe per-class but would race under `parallel="methods"`. Switching
+to method-level parallelism means introducing a `ThreadLocal<WebDriver>` first.
 
 ### Key Conventions
 
-- Failed tests automatically retry up to 2 times (configured in `pom.xml` `rerunFailingTestsCount`)
+- Failed tests automatically retry up to 2 times. This is **not** Surefire's
+  `rerunFailingTestsCount` (that element is not in `pom.xml`). `RetryAnalyzer` implements
+  `IRetryAnalyzer`; `RetryListener` implements `IAnnotationTransformer` and attaches it to
+  every `@Test` that hasn't declared its own, so tests never opt in individually
 - UI tests use explicit waits via `WebDriverWait` (15 second default timeout)
 - Page load timeout: 30 seconds
 - UI locator preference: `id` first, then `data-cy` CSS attribute selectors (e.g. `[data-cy='submit-btn']`), XPath avoided
