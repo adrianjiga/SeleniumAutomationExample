@@ -114,11 +114,13 @@ to method-level parallelism means introducing a `ThreadLocal<WebDriver>` first.
   every `@Test` that hasn't declared its own, so tests never opt in individually
 - UI tests use explicit waits via `WebDriverWait` (15 second default timeout)
 - Page load timeout: 30 seconds
-- UI locator preference: `id` first, then `data-cy` CSS attribute selectors (e.g. `[data-cy='submit-btn']`), XPath avoided
+- UI locators are **`data-cy` only** — `By.cssSelector("[data-cy='submit-btn']")`. No `By.id`, no `label[for=…]`, no CSS classes, no XPath. Ids still exist on the helper site, but nothing here uses them; a new locator without a `data-cy` hook means adding one to the helper site rather than falling back to an id
 - `WebElement.clear()` does not fire the JS `input` event — use `JavascriptExecutor` to dispatch it manually when a JS listener depends on it
+- Gender and hobby controls are **positional in the markup** (`gender-radio-1`) but **named in their hooks** (`gender-male`). `PracticeFormPage` keeps the 1-based `int` parameter and maps it via `GENDER_NAMES`/`HOBBY_NAMES`, because `PracticeFormGenderTest` is a `@DataProvider` of "select radio N, assert radio M deselected" — genuinely positional, and naming those rows would obscure the relationship
+- `getFieldValue(String)` takes a **`data-cy` hook**, not an id — e.g. `getFieldValue("first-name-input")`
 
 ### Target Site Notes
 
-- **Buttons page** (`/buttons`): dynamic click button has no `id`, use `[data-cy='dynamic-click-btn']`; message elements are hidden by CSS initially and shown via `style.display='block'` by JS
+- **Buttons page** (`/buttons`): message elements are hidden by CSS initially and shown via `style.display='block'` by JS
 - **Web Tables page** (`/webtables`): state is stored in `localStorage`; each test gets a clean state because `BaseUITest` creates a fresh `ChromeDriver` per method; the add/edit modal is injected into the DOM dynamically (use `visibilityOfElementLocated`, not just `presenceOfElementLocated`)
-- **Practice Form** (`/automation-practice-form`): required fields for submission are `firstName`, `lastName`, `userNumber` (mobile), and `gender`; country/city dropdowns are custom JS components (not native `<select>`) — click `.select-control` to open, then click the option; `getText()` returns `""` on elements inside a `display:none` container, so open dropdowns before asserting on their options
+- **Practice Form** (`/automation-practice-form`): required fields for submission are first name, last name, mobile, gender, **and date of birth** — the last cannot be typed, only picked from the datepicker, and omitting it leaves the form blocked by validation with the success modal shut; country/city dropdowns are custom JS components (not native `<select>`) — click `[data-cy='state-control']` / `[data-cy='city-control']` to open, then click the option; `getText()` returns `""` on elements inside a `display:none` container, so open dropdowns before asserting on their options
