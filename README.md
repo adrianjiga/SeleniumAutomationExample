@@ -116,20 +116,27 @@ SeleniumAutomationExample/
 
 ## Tech Stack
 
-Versions are declared as properties in `pom.xml` — that is the source of truth, and
-Dependabot bumps them weekly.
+| Technology | Purpose |
+|------------|---------|
+| Selenium WebDriver | Browser automation |
+| REST Assured | JSON API testing, with JSON Schema (draft-07) validation |
+| TestNG | Test framework — suites, data providers, listeners, retry analyzer |
+| WebDriverManager | Automatic ChromeDriver resolution |
+| Allure | Reporting — `@Step` traces and failure screenshots |
+| AssertJ | Fluent assertions |
+| Logback | Logging |
 
-| Technology | Version | Purpose |
-|------------|---------|---------|
-| Selenium WebDriver | 4.46.0 | Browser automation |
-| REST Assured | 6.0.1 | JSON API testing (with JSON Schema validation) |
-| TestNG | 7.12.0 | Test framework |
-| WebDriverManager | 6.3.4 | Automatic ChromeDriver management |
-| Allure | 2.35.4 | Test reporting (`@Step` traces, failure screenshots) |
-| AssertJ | 3.27.7 | Fluent assertions |
-| Logback | 1.6.1 | Logging |
-| Java | 17 | Runtime |
-| Maven | 3.6+ | Build & dependency management |
+Versions are **not listed here on purpose.** They are declared as properties in
+[`pom.xml`](pom.xml), Dependabot bumps them weekly, and a number transcribed into prose
+drifts the moment it merges — this table carried three stale versions before #55 corrected
+them. `pom.xml` is the single source of truth:
+
+```bash
+mvn help:evaluate -Dexpression=selenium.version -q -DforceStdout
+```
+
+Runtime requirements (Java 17, Maven 3.6+) are in [Prerequisites](#prerequisites) — those
+are floors this project targets, not dependency versions that move on their own.
 
 ## Test Coverage
 
