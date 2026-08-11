@@ -46,11 +46,11 @@ public class PracticeFormSubmissionTest extends BasePracticeFormTest {
         formPage.setAddress("42 Fantasy Lane");
 
         SoftAssert soft = new SoftAssert();
-        soft.assertEquals(formPage.getFieldValue("firstName"), "Alice");
-        soft.assertEquals(formPage.getFieldValue("lastName"), "Wonderland");
-        soft.assertEquals(formPage.getFieldValue("userEmail"), "alice@example.com");
-        soft.assertEquals(formPage.getFieldValue("userNumber"), "9876543210");
-        soft.assertEquals(formPage.getFieldValue("currentAddress"), "42 Fantasy Lane");
+        soft.assertEquals(formPage.getFieldValue("first-name-input"), "Alice");
+        soft.assertEquals(formPage.getFieldValue("last-name-input"), "Wonderland");
+        soft.assertEquals(formPage.getFieldValue("email-input"), "alice@example.com");
+        soft.assertEquals(formPage.getFieldValue("mobile-input"), "9876543210");
+        soft.assertEquals(formPage.getFieldValue("address-input"), "42 Fantasy Lane");
         soft.assertAll();
     }
 
