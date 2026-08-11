@@ -14,12 +14,12 @@ public class ButtonsPage {
     private final WebDriver driver;
     private final WebDriverWait wait;
 
-    private static final By DOUBLE_CLICK_BTN      = By.id("doubleClickBtn");
-    private static final By RIGHT_CLICK_BTN       = By.id("rightClickBtn");
+    private static final By DOUBLE_CLICK_BTN      = By.cssSelector("[data-cy='double-click-btn']");
+    private static final By RIGHT_CLICK_BTN       = By.cssSelector("[data-cy='right-click-btn']");
     private static final By DYNAMIC_CLICK_BTN     = By.cssSelector("[data-cy='dynamic-click-btn']");
-    private static final By DOUBLE_CLICK_MESSAGE  = By.id("doubleClickMessage");
-    private static final By RIGHT_CLICK_MESSAGE   = By.id("rightClickMessage");
-    private static final By DYNAMIC_CLICK_MESSAGE = By.id("dynamicClickMessage");
+    private static final By DOUBLE_CLICK_MESSAGE  = By.cssSelector("[data-cy='double-click-message']");
+    private static final By RIGHT_CLICK_MESSAGE   = By.cssSelector("[data-cy='right-click-message']");
+    private static final By DYNAMIC_CLICK_MESSAGE = By.cssSelector("[data-cy='dynamic-click-message']");
 
     public ButtonsPage(WebDriver driver, WebDriverWait wait) {
         this.driver = driver;
