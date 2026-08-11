@@ -14,9 +14,9 @@ public class WebTablesPage {
     private final WebDriver driver;
     private final WebDriverWait wait;
 
-    private static final By SEARCH_BOX        = By.id("searchBox");
+    private static final By SEARCH_BOX        = By.cssSelector("[data-cy='search-box']");
     private static final By TABLE_ROWS        = By.cssSelector("[data-cy^='table-row-']");
-    private static final By ADD_RECORD_BTN    = By.id("addNewRecordButton");
+    private static final By ADD_RECORD_BTN    = By.cssSelector("[data-cy='add-record-btn']");
     private static final By MODAL_FIRST_NAME  = By.cssSelector("[data-cy='modal-first-name']");
     private static final By MODAL_LAST_NAME   = By.cssSelector("[data-cy='modal-last-name']");
     private static final By MODAL_EMAIL       = By.cssSelector("[data-cy='modal-email']");
@@ -26,9 +26,9 @@ public class WebTablesPage {
     private static final By MODAL_SUBMIT_BTN  = By.cssSelector("[data-cy='modal-submit-btn']");
     private static final By MODAL_CANCEL_BTN  = By.cssSelector("[data-cy='modal-cancel-btn']");
     private static final By MODAL_OVERLAY     = By.cssSelector("[data-cy='modal-overlay']");
-    private static final By CURRENT_PAGE      = By.id("current-page-num");
-    private static final By TOTAL_PAGES       = By.id("total-pages-display");
-    private static final By ROWS_PER_PAGE_SEL = By.id("rows-per-page-sel");
+    private static final By CURRENT_PAGE      = By.cssSelector("[data-cy='current-page']");
+    private static final By TOTAL_PAGES       = By.cssSelector("[data-cy='total-pages']");
+    private static final By ROWS_PER_PAGE_SEL = By.cssSelector("[data-cy='rows-per-page-select']");
     private static final By NEXT_PAGE_BTN     = By.cssSelector("[data-cy='next-page-btn']");
     private static final By PREV_PAGE_BTN     = By.cssSelector("[data-cy='prev-page-btn']");
 
