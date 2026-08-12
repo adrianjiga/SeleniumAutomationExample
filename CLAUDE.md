@@ -22,6 +22,10 @@ mvn test -Dtest=PostsApiTest
 mvn test -Dtest=WebTablesCrudTest
 mvn test -Dtest=PracticeFormSubmissionTest
 mvn test -Dtest=ButtonsClickTest
+mvn test -Dtest=AccessibilityTest
+
+# Audit against a pinned analyzer build instead of its default branch
+mvn test -Dtest=AccessibilityTest -Dwqa.ref=<commit-sha>
 
 # Run a single test method
 mvn test -Dtest=WebTablesCrudTest#testAddNewRecord
@@ -52,6 +56,21 @@ This is a Maven-based test automation project using TestNG as the test framework
   source: `mvn test -Dheadless=false`, `mvn test -Dbase.url=http://localhost:3000/qa/helpers`.
   Note `BaseUITest.BASE_URL` is `static final`, so it freezes at class load — fine for a
   per-run override, not for switching environments mid-JVM
+
+- **Accessibility** (`src/test/java/com/example/accessibility/`) — `AccessibilityAuditor.audit(driver)`
+  injects the WebQualityAnalyzer browser bundle into the live page and returns its findings;
+  `AccessibilityBaseline.expectMatches(issues, baseline)` asserts them **two-way**. Three
+  things here are load-bearing:
+  - The bundle is injected via an appended `<script>` element, **not** by handing its source to
+    `executeScript`. Selenium wraps a script in an anonymous function, so the bundle's top-level
+    `var WebQualityAnalyzer` would become a local that vanishes on return and the global would
+    never appear
+  - The bundle is **downloaded at build time**, not vendored. `download-maven-plugin` fetches
+    `dist/lib/wqa.js` from the analyzer repo at `${wqa.ref}` (default: its default branch) during
+    `generate-test-resources`; Surefire passes the path as the `wqa.bundle` system property. A
+    committed copy would be a second source of truth that drifts silently
+  - Running the tests outside Maven fails fast with a message saying so, because `wqa.bundle`
+    comes from the pom and nothing else sets it
 
 - **Reporting** — Allure. Page objects carry `@Step` annotations; `ScreenshotListener`
   (an `ITestListener` registered via `@Listeners` on `BaseUITest`) attaches a PNG to the
@@ -87,10 +106,14 @@ This is a Maven-based test automation project using TestNG as the test framework
 | `ui.form` | `PracticeFormHobbiesTest` | `/automation-practice-form` | 3 |
 | `ui.form` | `PracticeFormDatePickerTest` | `/automation-practice-form` | 2 |
 | `ui.form` | `PracticeFormLocationTest` | `/automation-practice-form` | 2 |
+| `ui.accessibility` | `AccessibilityTest` | all three helper pages | 4 |
 
 Counts are **test runs**, not `@Test` methods. The only place these differ is
 `PracticeFormGenderTest`: 2 methods, but `testGenderRadioSelection` is data-driven via a
 `@DataProvider` with 3 rows, so it contributes 4 runs.
+
+`AccessibilityTest` deliberately does **not** use a shared base beyond `BaseUITest` — it visits
+all three pages, so binding it to one page's setup would be a lie about its scope.
 
 Shared base classes (no tests): `ui.webtables.BaseWebTablesTest`, `ui.form.BasePracticeFormTest`. Both extend `BaseUITest` from the parent `ui` package and require `import com.example.tests.ui.BaseUITest;`.
 
@@ -118,6 +141,12 @@ to method-level parallelism means introducing a `ThreadLocal<WebDriver>` first.
 - `WebElement.clear()` does not fire the JS `input` event — use `JavascriptExecutor` to dispatch it manually when a JS listener depends on it
 - Gender and hobby controls are **positional in the markup** (the id is still `gender-radio-1`) but **named in their hooks** (`genderMale`). `PracticeFormPage` keeps the 1-based `int` parameter and maps it via `GENDER_NAMES`/`HOBBY_NAMES`, because `PracticeFormGenderTest` is a `@DataProvider` of "select radio N, assert radio M deselected" — genuinely positional, and naming those rows would obscure the relationship
 - `getFieldValue(String)` takes a **`data-cy` hook**, not an id — e.g. `getFieldValue("firstNameInput")`
+- **Accessibility baselines are two-way.** `AccessibilityBaseline.expectMatches` fails on a new
+  issue *and* on a baseline entry that no longer occurs. Fixing a helper page is therefore
+  expected to turn this suite red until the stale entry is deleted — that is the mechanism, not
+  a bug. All baselines are currently empty, so the pages are held at zero
+- Both `testng.xml` and `testng-ui.xml` list the UI classes, so **a new UI test class must be
+  registered in both** or it silently never runs in one of the two entry points
 
 ### Target Site Notes
 

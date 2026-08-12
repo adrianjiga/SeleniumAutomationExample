@@ -52,6 +52,11 @@ SeleniumAutomationExample/
 │       └── run-tests.yml
 ├── src/test/
 │   ├── java/com/example/
+│   │   ├── accessibility/
+│   │   │   ├── A11yIssue.java
+│   │   │   ├── AccessibilityAuditor.java
+│   │   │   ├── AccessibilityBaseline.java
+│   │   │   └── AccessibilityReport.java
 │   │   ├── config/
 │   │   │   └── ConfigManager.java
 │   │   ├── listeners/
@@ -73,6 +78,8 @@ SeleniumAutomationExample/
 │   │       │   └── QueryFeaturesApiTest.java
 │   │       └── ui/
 │   │           ├── BaseUITest.java
+│   │           ├── accessibility/
+│   │           │   └── AccessibilityTest.java
 │   │           ├── buttons/
 │   │           │   ├── ButtonsClickTest.java
 │   │           │   └── ButtonsVisibilityTest.java
@@ -124,6 +131,7 @@ SeleniumAutomationExample/
 | WebDriverManager | Automatic ChromeDriver resolution |
 | Allure | Reporting — `@Step` traces and failure screenshots |
 | AssertJ | Fluent assertions |
+| WebQualityAnalyzer | Accessibility auditing — injected into the live page, asserted against a per-page baseline |
 | Logback | Logging |
 
 Versions are **not listed here on purpose.** They are declared as properties in
@@ -190,6 +198,47 @@ Tests against the [Automation Practice Form](https://adrianjiga.github.io/qa/hel
 | `PracticeFormHobbiesTest` | Check one hobby, check multiple independently, uncheck |
 | `PracticeFormDatePickerTest` | Opens popup, selects a date and verifies input value |
 | `PracticeFormLocationTest` | Cities populate after country selection, select country and city |
+
+#### Accessibility — 4 tests
+
+Tests every helper page, plus the Practice Form's submitted state:
+
+| Class | Tests |
+|---|---|
+| `AccessibilityTest` | Buttons, Web Tables, Practice Form, submitted Practice Form |
+
+Auditing is powered by [WebQualityAnalyzer](https://github.com/adrianjiga/WebQualityAnalyzer)
+— the same engine that drives its browser extension, published as a browser bundle for exactly
+this use. `AccessibilityAuditor.audit(driver)` injects it into the live page and returns the
+findings; SEO and performance analysis are disabled, because they audit the *page* rather than
+the behaviour under test.
+
+**The baseline is two-way, and the second direction is the point.** A new issue fails, *and* a
+baseline entry that stops occurring fails. Without the second check a baseline is just a
+suppression list: it only ever grows, and nothing tells you an entry went stale. With it,
+fixing a page forces the baseline to shrink. All baselines are currently empty, so these pages
+are held at zero.
+
+The submitted-state test exists because auditing only the initial render misses whatever a
+page reveals at runtime — the confirmation modal is hidden until submit, and a heading-
+hierarchy defect once lived there.
+
+##### Where the analyzer comes from
+
+The bundle is **not** a Maven artifact and is **not** vendored into `src/test/resources`. A
+committed copy would be a second source of truth that drifts silently the moment the analyzer
+changes, and nothing here would notice. Instead `download-maven-plugin` fetches it during
+`generate-test-resources`, and Surefire passes the path to the JVM as `wqa.bundle`:
+
+```bash
+# Pin a specific analyzer build for a reproducible historic run
+mvn test -Dtest=AccessibilityTest -Dwqa.ref=<commit-sha>
+```
+
+`wqa.ref` defaults to the analyzer's default branch, which is what the Cypress and Playwright
+suites also track (npm's `github:owner/repo` resolves to default-branch HEAD). All three
+suites therefore audit against the same analyzer build, so a finding in one is reproducible in
+the others.
 
 ## CI/CD
 
