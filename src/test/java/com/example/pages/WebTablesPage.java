@@ -14,46 +14,51 @@ public class WebTablesPage {
     private final WebDriver driver;
     private final WebDriverWait wait;
 
-    private static final By SEARCH_BOX        = By.cssSelector("[data-cy='search-box']");
-    private static final By TABLE_ROWS        = By.cssSelector("[data-cy^='table-row-']");
-    private static final By ADD_RECORD_BTN    = By.cssSelector("[data-cy='add-record-btn']");
-    private static final By MODAL_FIRST_NAME  = By.cssSelector("[data-cy='modal-first-name']");
-    private static final By MODAL_LAST_NAME   = By.cssSelector("[data-cy='modal-last-name']");
-    private static final By MODAL_EMAIL       = By.cssSelector("[data-cy='modal-email']");
-    private static final By MODAL_AGE         = By.cssSelector("[data-cy='modal-age']");
-    private static final By MODAL_SALARY      = By.cssSelector("[data-cy='modal-salary']");
-    private static final By MODAL_DEPARTMENT  = By.cssSelector("[data-cy='modal-department']");
-    private static final By MODAL_SUBMIT_BTN  = By.cssSelector("[data-cy='modal-submit-btn']");
-    private static final By MODAL_CANCEL_BTN  = By.cssSelector("[data-cy='modal-cancel-btn']");
-    private static final By MODAL_OVERLAY     = By.cssSelector("[data-cy='modal-overlay']");
-    private static final By CURRENT_PAGE      = By.cssSelector("[data-cy='current-page']");
-    private static final By TOTAL_PAGES       = By.cssSelector("[data-cy='total-pages']");
-    private static final By ROWS_PER_PAGE_SEL = By.cssSelector("[data-cy='rows-per-page-select']");
-    private static final By NEXT_PAGE_BTN     = By.cssSelector("[data-cy='next-page-btn']");
-    private static final By PREV_PAGE_BTN     = By.cssSelector("[data-cy='prev-page-btn']");
+    private static final By SEARCH_BOX        = By.cssSelector("[data-cy='searchBox']");
+    private static final By TABLE_ROWS        = By.cssSelector("[data-cy^='tableRow']");
+    private static final By ADD_RECORD_BTN    = By.cssSelector("[data-cy='addRecordBtn']");
+    private static final By MODAL_FIRST_NAME  = By.cssSelector("[data-cy='modalFirstName']");
+    private static final By MODAL_LAST_NAME   = By.cssSelector("[data-cy='modalLastName']");
+    private static final By MODAL_EMAIL       = By.cssSelector("[data-cy='modalEmail']");
+    private static final By MODAL_AGE         = By.cssSelector("[data-cy='modalAge']");
+    private static final By MODAL_SALARY      = By.cssSelector("[data-cy='modalSalary']");
+    private static final By MODAL_DEPARTMENT  = By.cssSelector("[data-cy='modalDepartment']");
+    private static final By MODAL_SUBMIT_BTN  = By.cssSelector("[data-cy='modalSubmitBtn']");
+    private static final By MODAL_CANCEL_BTN  = By.cssSelector("[data-cy='modalCancelBtn']");
+    private static final By MODAL_OVERLAY     = By.cssSelector("[data-cy='modalOverlay']");
+    private static final By CURRENT_PAGE      = By.cssSelector("[data-cy='currentPage']");
+    private static final By TOTAL_PAGES       = By.cssSelector("[data-cy='totalPages']");
+    private static final By ROWS_PER_PAGE_SEL = By.cssSelector("[data-cy='rowsPerPageSelect']");
+    private static final By NEXT_PAGE_BTN     = By.cssSelector("[data-cy='nextPageBtn']");
+    private static final By PREV_PAGE_BTN     = By.cssSelector("[data-cy='prevPageBtn']");
 
     public WebTablesPage(WebDriver driver, WebDriverWait wait) {
         this.driver = driver;
         this.wait = wait;
     }
 
+    /**
+     * Cell hooks are {@code cellFirstName1}, {@code cellAge2} and so on, so the field name
+     * arrives camelCased ({@code "firstName"}) and only needs its first letter raised.
+     */
     private static By cellLocator(String field, int row) {
-        return By.cssSelector("[data-cy='cell-" + field + "-" + row + "']");
+        String suffix = Character.toUpperCase(field.charAt(0)) + field.substring(1);
+        return By.cssSelector("[data-cy='cell" + suffix + row + "']");
     }
 
     private static By deleteBtnLocator(int row) {
-        return By.cssSelector("[data-cy='delete-btn-" + row + "']");
+        return By.cssSelector("[data-cy='deleteBtn" + row + "']");
     }
 
     private static By editBtnLocator(int row) {
-        return By.cssSelector("[data-cy='edit-btn-" + row + "']");
+        return By.cssSelector("[data-cy='editBtn" + row + "']");
     }
 
     @Step("Navigate to Web Tables page")
     public WebTablesPage navigate(String baseUrl) {
         driver.get(baseUrl + "/webtables");
         wait.until(ExpectedConditions.jsReturnsValue("return document.readyState === 'complete';"));
-        wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("[data-cy='table-row-1']")));
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("[data-cy='tableRow1']")));
         return this;
     }
 

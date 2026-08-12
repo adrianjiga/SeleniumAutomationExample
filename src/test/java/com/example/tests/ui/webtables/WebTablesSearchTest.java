@@ -9,7 +9,7 @@ public class WebTablesSearchTest extends BaseWebTablesTest {
     public void testSearchByFirstName() {
         webTablesPage.search("Cierra");
         webTablesPage.waitForRowCount(1);
-        Assert.assertEquals(webTablesPage.getCellText("first-name", 1), "Cierra");
+        Assert.assertEquals(webTablesPage.getCellText("firstName", 1), "Cierra");
     }
 
     @Test(description = "Should filter records by department via search box")

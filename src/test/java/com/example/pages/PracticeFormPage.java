@@ -16,28 +16,28 @@ public class PracticeFormPage {
     private final WebDriver driver;
     private final WebDriverWait wait;
 
-    private static final By FORM_CONTAINER      = By.cssSelector("[data-cy='practice-form']");
-    private static final By FIRST_NAME          = By.cssSelector("[data-cy='first-name-input']");
-    private static final By LAST_NAME           = By.cssSelector("[data-cy='last-name-input']");
-    private static final By USER_EMAIL          = By.cssSelector("[data-cy='email-input']");
-    private static final By USER_NUMBER         = By.cssSelector("[data-cy='mobile-input']");
-    private static final By CURRENT_ADDRESS     = By.cssSelector("[data-cy='address-input']");
-    private static final By SUBMIT_BTN          = By.cssSelector("[data-cy='submit-btn']");
-    private static final By DATE_OF_BIRTH_INPUT = By.cssSelector("[data-cy='date-of-birth-input']");
-    private static final By DATEPICKER_POPUP    = By.cssSelector("[data-cy='datepicker-popup']");
-    private static final By DP_MONTH_SELECT     = By.cssSelector("[data-cy='month-select']");
-    private static final By DP_YEAR_SELECT      = By.cssSelector("[data-cy='year-select']");
-    private static final By COUNTRY_CONTROL     = By.cssSelector("[data-cy='state-control']");
-    private static final By COUNTRY_MENU        = By.cssSelector("[data-cy='state-menu']");
-    private static final By COUNTRY_OPTIONS     = By.cssSelector("[data-cy^='state-option-']");
-    private static final By COUNTRY_DISPLAY     = By.cssSelector("[data-cy='state-display']");
-    private static final By CITY_CONTROL        = By.cssSelector("[data-cy='city-control']");
-    private static final By CITY_MENU           = By.cssSelector("[data-cy='city-menu']");
-    private static final By CITY_OPTIONS        = By.cssSelector("[data-cy^='city-option-']");
-    private static final By CITY_DISPLAY        = By.cssSelector("[data-cy='city-display']");
-    private static final By SUCCESS_MODAL       = By.cssSelector("[data-cy='success-modal']");
-    private static final By MODAL_TITLE         = By.cssSelector("[data-cy='modal-title']");
-    private static final By CLOSE_MODAL_BTN     = By.cssSelector("[data-cy='close-modal-btn']");
+    private static final By FORM_CONTAINER      = By.cssSelector("[data-cy='practiceForm']");
+    private static final By FIRST_NAME          = By.cssSelector("[data-cy='firstNameInput']");
+    private static final By LAST_NAME           = By.cssSelector("[data-cy='lastNameInput']");
+    private static final By USER_EMAIL          = By.cssSelector("[data-cy='emailInput']");
+    private static final By USER_NUMBER         = By.cssSelector("[data-cy='mobileInput']");
+    private static final By CURRENT_ADDRESS     = By.cssSelector("[data-cy='addressInput']");
+    private static final By SUBMIT_BTN          = By.cssSelector("[data-cy='submitBtn']");
+    private static final By DATE_OF_BIRTH_INPUT = By.cssSelector("[data-cy='dateOfBirthInput']");
+    private static final By DATEPICKER_POPUP    = By.cssSelector("[data-cy='datepickerPopup']");
+    private static final By DP_MONTH_SELECT     = By.cssSelector("[data-cy='monthSelect']");
+    private static final By DP_YEAR_SELECT      = By.cssSelector("[data-cy='yearSelect']");
+    private static final By COUNTRY_CONTROL     = By.cssSelector("[data-cy='stateControl']");
+    private static final By COUNTRY_MENU        = By.cssSelector("[data-cy='stateMenu']");
+    private static final By COUNTRY_OPTIONS     = By.cssSelector("[data-cy^='stateOption']");
+    private static final By COUNTRY_DISPLAY     = By.cssSelector("[data-cy='stateDisplay']");
+    private static final By CITY_CONTROL        = By.cssSelector("[data-cy='cityControl']");
+    private static final By CITY_MENU           = By.cssSelector("[data-cy='cityMenu']");
+    private static final By CITY_OPTIONS        = By.cssSelector("[data-cy^='cityOption']");
+    private static final By CITY_DISPLAY        = By.cssSelector("[data-cy='cityDisplay']");
+    private static final By SUCCESS_MODAL       = By.cssSelector("[data-cy='successModal']");
+    private static final By MODAL_TITLE         = By.cssSelector("[data-cy='modalTitle']");
+    private static final By CLOSE_MODAL_BTN     = By.cssSelector("[data-cy='closeModalBtn']");
 
     public PracticeFormPage(WebDriver driver, WebDriverWait wait) {
         this.driver = driver;
@@ -52,19 +52,19 @@ public class PracticeFormPage {
      * "select radio N, assert radio M is deselected" — and naming those rows would obscure
      * the relationship rather than clarify it. The index-to-name mapping lives here instead.
      */
-    private static final String[] GENDER_NAMES = {"male", "female", "other"};
-    private static final String[] HOBBY_NAMES = {"sports", "reading", "music"};
+    private static final String[] GENDER_NAMES = {"Male", "Female", "Other"};
+    private static final String[] HOBBY_NAMES = {"Sports", "Reading", "Music"};
 
     private static String genderName(int radioIndex) {
         return GENDER_NAMES[radioIndex - 1];
     }
 
     private static By genderLabel(int radioIndex) {
-        return By.cssSelector("[data-cy='gender-" + genderName(radioIndex) + "-label']");
+        return By.cssSelector("[data-cy='gender" + genderName(radioIndex) + "Label']");
     }
 
     private static By genderRadio(int radioIndex) {
-        return By.cssSelector("[data-cy='gender-" + genderName(radioIndex) + "']");
+        return By.cssSelector("[data-cy='gender" + genderName(radioIndex) + "']");
     }
 
     private static By hobbyLabel(String dataCyLabel) {
@@ -72,11 +72,11 @@ public class PracticeFormPage {
     }
 
     private static By hobbyCheckbox(int index) {
-        return By.cssSelector("[data-cy='hobby-" + HOBBY_NAMES[index - 1] + "']");
+        return By.cssSelector("[data-cy='hobby" + HOBBY_NAMES[index - 1] + "']");
     }
 
     private static By dayCell(int day) {
-        return By.cssSelector("[data-cy='day-" + String.format("%02d", day) + "']");
+        return By.cssSelector("[data-cy='day" + String.format("%02d", day) + "']");
     }
 
     @Step("Navigate to Practice Form page")
