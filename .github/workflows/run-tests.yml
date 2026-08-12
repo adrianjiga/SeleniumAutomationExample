@@ -52,6 +52,7 @@ jobs:
               - 'pom.xml'
             ui:
               - 'src/test/java/com/example/tests/ui/**'
+              - 'src/test/java/com/example/accessibility/**'
               - 'testng-ui.xml'
               - 'pom.xml'
 
