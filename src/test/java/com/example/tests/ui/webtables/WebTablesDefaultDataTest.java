@@ -14,8 +14,8 @@ public class WebTablesDefaultDataTest extends BaseWebTablesTest {
     @Test(description = "Should display Cierra Vega as the first default record")
     public void testFirstDefaultRecord() {
         SoftAssert soft = new SoftAssert();
-        soft.assertEquals(webTablesPage.getCellText("first-name", 1), "Cierra");
-        soft.assertEquals(webTablesPage.getCellText("last-name", 1), "Vega");
+        soft.assertEquals(webTablesPage.getCellText("firstName", 1), "Cierra");
+        soft.assertEquals(webTablesPage.getCellText("lastName", 1), "Vega");
         soft.assertEquals(webTablesPage.getCellText("age", 1), "39");
         soft.assertEquals(webTablesPage.getCellText("department", 1), "Insurance");
         soft.assertAll();

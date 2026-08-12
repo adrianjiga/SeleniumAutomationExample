@@ -15,7 +15,7 @@ public class WebTablesCrudTest extends BaseWebTablesTest {
         webTablesPage.waitForRowCount(4);
         boolean found = false;
         for (int i = 1; i <= webTablesPage.getRowCount(); i++) {
-            if ("Jane".equals(webTablesPage.getCellText("first-name", i))) {
+            if ("Jane".equals(webTablesPage.getCellText("firstName", i))) {
                 found = true;
                 break;
             }
@@ -26,7 +26,7 @@ public class WebTablesCrudTest extends BaseWebTablesTest {
     @Test(description = "Should close registration modal without saving when cancel is clicked")
     public void testCancelModalDoesNotAddRecord() {
         webTablesPage.clickAddRecord();
-        webTablesPage.clearAndTypeModalField("modal-first-name", "Ghost");
+        webTablesPage.clearAndTypeModalField("modalFirstName", "Ghost");
         webTablesPage.cancelModal();
 
         Assert.assertEquals(webTablesPage.getRowCount(), 3,
@@ -43,11 +43,11 @@ public class WebTablesCrudTest extends BaseWebTablesTest {
 
     @Test(description = "Should delete the correct record by row position")
     public void testDeleteSpecificRecord() {
-        String secondRowName = webTablesPage.getCellText("first-name", 2);
+        String secondRowName = webTablesPage.getCellText("firstName", 2);
         webTablesPage.clickDelete(1);
         webTablesPage.waitForRowCount(2);
 
-        String newFirstRowName = webTablesPage.getCellText("first-name", 1);
+        String newFirstRowName = webTablesPage.getCellText("firstName", 1);
         Assert.assertEquals(newFirstRowName, secondRowName,
                 "After deleting row 1, the old row 2 should shift up to row 1");
     }
@@ -55,11 +55,11 @@ public class WebTablesCrudTest extends BaseWebTablesTest {
     @Test(description = "Should edit an existing record via the registration modal")
     public void testEditRecord() {
         webTablesPage.clickEdit(1);
-        webTablesPage.clearAndTypeModalField("modal-first-name", "UpdatedName");
+        webTablesPage.clearAndTypeModalField("modalFirstName", "UpdatedName");
         webTablesPage.submitModal();
 
         webTablesPage.waitForModalToClose();
-        Assert.assertEquals(webTablesPage.getCellText("first-name", 1),
+        Assert.assertEquals(webTablesPage.getCellText("firstName", 1),
                 "UpdatedName", "First name should be updated after editing");
     }
 
@@ -68,9 +68,9 @@ public class WebTablesCrudTest extends BaseWebTablesTest {
         webTablesPage.clickEdit(1);
 
         SoftAssert soft = new SoftAssert();
-        soft.assertEquals(webTablesPage.getModalFieldValue("modal-first-name"),
+        soft.assertEquals(webTablesPage.getModalFieldValue("modalFirstName"),
                 "Cierra", "Modal should be pre-filled with existing first name");
-        soft.assertEquals(webTablesPage.getModalFieldValue("modal-last-name"),
+        soft.assertEquals(webTablesPage.getModalFieldValue("modalLastName"),
                 "Vega", "Modal should be pre-filled with existing last name");
         soft.assertAll();
     }
