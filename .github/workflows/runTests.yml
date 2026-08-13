@@ -50,11 +50,15 @@ jobs:
               - 'src/test/java/com/example/tests/api/**'
               - 'testngApi.xml'
               - 'pom.xml'
+              # A change to this workflow must run the tests it orchestrates, or a broken job
+              # graph only surfaces after merge, on the scheduled run.
+              - '.github/workflows/runTests.yml'
             ui:
               - 'src/test/java/com/example/tests/ui/**'
               - 'src/test/java/com/example/accessibility/**'
               - 'testngUi.xml'
               - 'pom.xml'
+              - '.github/workflows/runTests.yml'
 
       - name: Decide What to Run
         id: decide
