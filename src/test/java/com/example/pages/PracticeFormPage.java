@@ -45,8 +45,8 @@ public class PracticeFormPage {
     }
 
     /**
-     * The gender and hobby hooks are named ({@code gender-male}) while the radios and
-     * checkboxes are positional in the markup ({@code gender-radio-1}). The 1-based index
+     * The gender and hobby hooks are named ({@code genderMale}) while the radios and
+     * checkboxes are positional in the markup ({@code genderRadio1}). The 1-based index
      * stays in the method signature on purpose: the tests that use it are positional by
      * nature — {@code PracticeFormGenderTest} drives a {@code @DataProvider} of
      * "select radio N, assert radio M is deselected" — and naming those rows would obscure
