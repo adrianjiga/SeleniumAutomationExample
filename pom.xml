@@ -24,7 +24,7 @@
         <maven-surefire-plugin.version>3.5.6</maven-surefire-plugin.version>
         <aspectj.version>1.9.25.1</aspectj.version>
         <download-maven-plugin.version>1.13.0</download-maven-plugin.version>
-        <!-- Default test suite - can be overridden with -DsuiteXmlFile=testng-api.xml -->
+        <!-- Default test suite - can be overridden with -DsuiteXmlFile=testngApi.xml -->
         <suiteXmlFile>testng.xml</suiteXmlFile>
 
         <!--
