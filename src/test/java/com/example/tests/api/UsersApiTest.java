@@ -20,7 +20,7 @@ public class UsersApiTest extends BaseApiTest {
                 .statusCode(200)
                 .contentType(containsString("application/json"))
                 .body("size()", equalTo(10))
-                .body(matchesJsonSchemaInClasspath("schemas/users-array-schema.json"));
+                .body(matchesJsonSchemaInClasspath("schemas/usersArraySchema.json"));
     }
 
     @Test(description = "GET /users/{id} returns a user with nested address.geo and company objects")
@@ -32,7 +32,7 @@ public class UsersApiTest extends BaseApiTest {
         .then()
                 .statusCode(200)
                 .contentType(containsString("application/json"))
-                .body(matchesJsonSchemaInClasspath("schemas/user-schema.json"))
+                .body(matchesJsonSchemaInClasspath("schemas/userSchema.json"))
                 .body("id", equalTo(1))
                 .body("address.geo.lat", not(equalTo("")))
                 .body("address.geo.lng", not(equalTo("")))

@@ -26,7 +26,7 @@ public class PostsApiTest extends BaseApiTest {
                 .statusCode(200)
                 .contentType(containsString("application/json"))
                 .body("size()", equalTo(100))
-                .body(matchesJsonSchemaInClasspath("schemas/posts-array-schema.json"));
+                .body(matchesJsonSchemaInClasspath("schemas/postsArraySchema.json"));
     }
 
     @Test(description = "GET /posts/{id} returns a post matching the fixture and schema")
@@ -40,7 +40,7 @@ public class PostsApiTest extends BaseApiTest {
         .then()
                 .statusCode(200)
                 .contentType(containsString("application/json"))
-                .body(matchesJsonSchemaInClasspath("schemas/post-schema.json"))
+                .body(matchesJsonSchemaInClasspath("schemas/postSchema.json"))
                 .body("id", equalTo(expected.getInt("id")))
                 .body("userId", equalTo(expected.getInt("userId")))
                 .body("title", equalTo(expected.getString("title")))

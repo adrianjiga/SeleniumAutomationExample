@@ -23,7 +23,7 @@ public class CommentsApiTest extends BaseApiTest {
                 .statusCode(200)
                 .contentType(containsString("application/json"))
                 .body("size()", greaterThan(0))
-                .body(matchesJsonSchemaInClasspath("schemas/comments-array-schema.json"))
+                .body(matchesJsonSchemaInClasspath("schemas/commentsArraySchema.json"))
                 .body("findAll { it.postId != " + targetPostId + " }.size()", equalTo(0));
     }
 }

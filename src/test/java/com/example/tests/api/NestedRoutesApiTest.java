@@ -22,7 +22,7 @@ public class NestedRoutesApiTest extends BaseApiTest {
                 .statusCode(200)
                 .contentType(containsString("application/json"))
                 .body("size()", greaterThan(0))
-                .body(matchesJsonSchemaInClasspath("schemas/comments-array-schema.json"))
+                .body(matchesJsonSchemaInClasspath("schemas/commentsArraySchema.json"))
                 .body("findAll { it.postId != " + postId + " }.size()", equalTo(0));
     }
 
@@ -38,7 +38,7 @@ public class NestedRoutesApiTest extends BaseApiTest {
                 .statusCode(200)
                 .contentType(containsString("application/json"))
                 .body("size()", equalTo(10))
-                .body(matchesJsonSchemaInClasspath("schemas/posts-array-schema.json"))
+                .body(matchesJsonSchemaInClasspath("schemas/postsArraySchema.json"))
                 .body("findAll { it.userId != " + userId + " }.size()", equalTo(0));
     }
 
@@ -54,7 +54,7 @@ public class NestedRoutesApiTest extends BaseApiTest {
                 .statusCode(200)
                 .contentType(containsString("application/json"))
                 .body("size()", equalTo(50))
-                .body(matchesJsonSchemaInClasspath("schemas/photos-array-schema.json"))
+                .body(matchesJsonSchemaInClasspath("schemas/photosArraySchema.json"))
                 .body("findAll { it.albumId != " + albumId + " }.size()", equalTo(0));
     }
 }
