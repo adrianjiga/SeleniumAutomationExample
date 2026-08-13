@@ -12,10 +12,10 @@ mvn clean install -DskipTests
 mvn test
 
 # Run only API tests
-mvn test -DsuiteXmlFile=testng-api.xml
+mvn test -DsuiteXmlFile=testngApi.xml
 
 # Run only UI tests
-mvn test -DsuiteXmlFile=testng-ui.xml
+mvn test -DsuiteXmlFile=testngUi.xml
 
 # Run a single test class
 mvn test -Dtest=PostsApiTest
@@ -120,8 +120,8 @@ Shared base classes (no tests): `ui.webtables.BaseWebTablesTest`, `ui.form.BaseP
 ### TestNG Configuration
 
 - `testng.xml` — All tests. `parallel="classes" thread-count="6"`
-- `testng-api.xml` — API tests only. No `parallel` attribute, so it runs sequentially
-- `testng-ui.xml` — UI tests only. `parallel="classes" thread-count="4"`
+- `testngApi.xml` — API tests only. No `parallel` attribute, so it runs sequentially
+- `testngUi.xml` — UI tests only. `parallel="classes" thread-count="4"`
 
 All three register `com.example.listeners.RetryListener` in a `<listeners>` block.
 
@@ -145,7 +145,7 @@ to method-level parallelism means introducing a `ThreadLocal<WebDriver>` first.
   issue *and* on a baseline entry that no longer occurs. Fixing a helper page is therefore
   expected to turn this suite red until the stale entry is deleted — that is the mechanism, not
   a bug. All baselines are currently empty, so the pages are held at zero
-- Both `testng.xml` and `testng-ui.xml` list the UI classes, so **a new UI test class must be
+- Both `testng.xml` and `testngUi.xml` list the UI classes, so **a new UI test class must be
   registered in both** or it silently never runs in one of the two entry points
 
 ### Target Site Notes
