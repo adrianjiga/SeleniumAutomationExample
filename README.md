@@ -4,6 +4,10 @@ A demo project showcasing Selenium WebDriver and REST Assured testing capabiliti
 
 **Target site:** [adrianjiga.github.io/qa/helpers](https://adrianjiga.github.io/qa/helpers)
 
+> **Architecture** — this repository is one of six that behave as a single system.
+> The [cross-repo architecture notes](https://adrianjiga.github.io/qa/architecture)
+> cover the `data-cy` contract, the coordinated-deploy problem, and the known gaps.
+
 ## Prerequisites
 
 - Java 17 or higher
