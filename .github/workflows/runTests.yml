@@ -50,11 +50,15 @@ jobs:
               - 'src/test/java/com/example/tests/api/**'
               - 'testngApi.xml'
               - 'pom.xml'
+              # A change to this workflow must run the tests it orchestrates, or a broken job
+              # graph only surfaces after merge, on the scheduled run.
+              - '.github/workflows/runTests.yml'
             ui:
               - 'src/test/java/com/example/tests/ui/**'
               - 'src/test/java/com/example/accessibility/**'
               - 'testngUi.xml'
               - 'pom.xml'
+              - '.github/workflows/runTests.yml'
 
       - name: Decide What to Run
         id: decide
@@ -90,7 +94,7 @@ jobs:
     runs-on: ubuntu-latest
     if: needs.changes.outputs.should_run_api == 'true' || needs.changes.outputs.should_run_ui == 'true'
     outputs:
-      cache-key: ${{ steps.cache-key.outputs.key }}
+      cacheKey: ${{ steps.cacheKey.outputs.key }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -113,34 +117,34 @@ jobs:
             ${{ runner.os }}-maven-
 
       - name: Generate Cache Key
-        id: cache-key
+        id: cacheKey
         run: echo "key=${{ runner.os }}-compiled-${{ github.sha }}" >> $GITHUB_OUTPUT
 
       - name: Check Compiled Cache
-        id: compiled-cache
+        id: compiledCache
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: |
             target/classes
             target/test-classes
             target/generated-test-sources
-          key: ${{ steps.cache-key.outputs.key }}
+          key: ${{ steps.cacheKey.outputs.key }}
 
       - name: Compile Project
-        if: steps.compiled-cache.outputs.cache-hit != 'true'
+        if: steps.compiledCache.outputs.cache-hit != 'true'
         run: mvn clean compile test-compile -B -q
 
       - name: Save Compiled Cache
-        if: steps.compiled-cache.outputs.cache-hit != 'true'
+        if: steps.compiledCache.outputs.cache-hit != 'true'
         uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: |
             target/classes
             target/test-classes
             target/generated-test-sources
-          key: ${{ steps.cache-key.outputs.key }}
+          key: ${{ steps.cacheKey.outputs.key }}
 
-  test-api:
+  testApi:
     name: API Tests
     needs: [changes, build]
     if: needs.changes.outputs.should_run_api == 'true'
@@ -173,7 +177,7 @@ jobs:
             target/classes
             target/test-classes
             target/generated-test-sources
-          key: ${{ needs.build.outputs.cache-key }}
+          key: ${{ needs.build.outputs.cacheKey }}
 
       - name: Run API Tests
         id: tests
@@ -191,7 +195,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: test-reports-api
+          name: testReportsApi
           path: |
             target/surefire-reports/
             target/allure-results/
@@ -202,7 +206,7 @@ jobs:
         if: failure() || steps.tests.outcome == 'failure'
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: test-logs-api
+          name: testLogsApi
           path: |
             target/surefire-reports/*.xml
             target/surefire-reports/*.txt
@@ -212,7 +216,7 @@ jobs:
         if: steps.tests.outcome == 'failure'
         run: exit 1
 
-  test-ui:
+  testUi:
     name: UI Tests
     needs: [changes, build]
     if: needs.changes.outputs.should_run_ui == 'true'
@@ -245,7 +249,7 @@ jobs:
             target/classes
             target/test-classes
             target/generated-test-sources
-          key: ${{ needs.build.outputs.cache-key }}
+          key: ${{ needs.build.outputs.cacheKey }}
 
       - name: Setup Chrome
         uses: browser-actions/setup-chrome@2e1d749697dd1612b833dba4a722266286fbefcd #v2.1.2
@@ -283,7 +287,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: test-reports-ui
+          name: testReportsUi
           path: |
             target/surefire-reports/
             target/allure-results/
@@ -295,7 +299,7 @@ jobs:
         if: failure() || steps.tests.outcome == 'failure'
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: test-logs-ui
+          name: testLogsUi
           path: |
             target/surefire-reports/*.xml
             target/surefire-reports/*.txt
