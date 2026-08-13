@@ -28,10 +28,10 @@ mvn clean install -DskipTests
 mvn test
 
 # Run only API tests
-mvn test -DsuiteXmlFile=testng-api.xml
+mvn test -DsuiteXmlFile=testngApi.xml
 
 # Run only UI tests
-mvn test -DsuiteXmlFile=testng-ui.xml
+mvn test -DsuiteXmlFile=testngUi.xml
 
 # Run a single test class
 mvn test -Dtest=WebTablesCrudTest
@@ -48,8 +48,8 @@ SeleniumAutomationExample/
 ├── .github/
 │   ├── dependabot.yml
 │   └── workflows/
-│       ├── run-ci.yml
-│       └── run-tests.yml
+│       ├── runCi.yml
+│       └── runTests.yml
 ├── src/test/
 │   ├── java/com/example/
 │   │   ├── accessibility/
@@ -103,22 +103,22 @@ SeleniumAutomationExample/
 │       ├── fixtures/
 │       │   └── post.json
 │       └── schemas/
-│           ├── post-schema.json
-│           ├── posts-array-schema.json
-│           ├── comment-schema.json
-│           ├── comments-array-schema.json
-│           ├── user-schema.json
-│           ├── users-array-schema.json
-│           ├── todo-schema.json
-│           ├── todos-array-schema.json
-│           ├── photo-schema.json
-│           └── photos-array-schema.json
+│           ├── postSchema.json
+│           ├── postsArraySchema.json
+│           ├── commentSchema.json
+│           ├── commentsArraySchema.json
+│           ├── userSchema.json
+│           ├── usersArraySchema.json
+│           ├── todoSchema.json
+│           ├── todosArraySchema.json
+│           ├── photoSchema.json
+│           └── photosArraySchema.json
 ├── CLAUDE.md                 # Repo conventions, gotchas and target-site notes
 ├── LICENSE
 ├── pom.xml
 ├── testng.xml                # All suites  (parallel="classes", 6 threads)
-├── testng-api.xml            # API only    (sequential)
-└── testng-ui.xml             # UI only     (parallel="classes", 4 threads)
+├── testngApi.xml            # API only    (sequential)
+└── testngUi.xml             # UI only     (parallel="classes", 4 threads)
 ```
 
 ## Tech Stack
@@ -246,7 +246,7 @@ Both workflows open with a `changes` job that runs `dorny/paths-filter` to decid
 API side, the UI side, or shared build files were touched. Downstream jobs gate on those
 outputs, so a PR that only edits API tests never spins up Chrome.
 
-### CI Workflow (`run-ci.yml`)
+### CI Workflow (`runCi.yml`)
 
 Lightweight validation on every pull request — fast feedback (~2 min) without running tests:
 
@@ -258,7 +258,7 @@ Lightweight validation on every pull request — fast feedback (~2 min) without 
   (`--nonet` skips the external DTD fetch, so the check doesn't depend on testng.org being up)
 - Writes a summary table to `$GITHUB_STEP_SUMMARY`
 
-### Test Workflow (`run-tests.yml`)
+### Test Workflow (`runTests.yml`)
 
 Full test execution:
 
@@ -306,10 +306,10 @@ property wins over the file. So **no source edit is needed to override anything*
 
 ```bash
 # Watch the browser drive the tests
-mvn test -DsuiteXmlFile=testng-ui.xml -Dheadless=false
+mvn test -DsuiteXmlFile=testngUi.xml -Dheadless=false
 
 # Point the UI suite at a local copy of the helper site
-mvn test -DsuiteXmlFile=testng-ui.xml -Dbase.url=http://localhost:3000/qa/helpers
+mvn test -DsuiteXmlFile=testngUi.xml -Dbase.url=http://localhost:3000/qa/helpers
 ```
 
 One caveat: `BaseUITest.BASE_URL` is `static final`, so it is resolved once at class load.
@@ -323,8 +323,8 @@ Parallelism is set per suite, and the three suites differ:
 | Suite | Setting | Why |
 |---|---|---|
 | `testng.xml` | `parallel="classes" thread-count="6"` | Full run — API and UI classes interleave across 6 threads. |
-| `testng-ui.xml` | `parallel="classes" thread-count="4"` | UI only. Lower than 6 because each class holds its own `ChromeDriver`, and browsers are the memory constraint. |
-| `testng-api.xml` | *(none — sequential)* | REST Assured calls are fast enough that thread setup costs more than it saves, and it keeps JSONPlaceholder rate limits out of play. |
+| `testngUi.xml` | `parallel="classes" thread-count="4"` | UI only. Lower than 6 because each class holds its own `ChromeDriver`, and browsers are the memory constraint. |
+| `testngApi.xml` | *(none — sequential)* | REST Assured calls are fast enough that thread setup costs more than it saves, and it keeps JSONPlaceholder rate limits out of play. |
 
 `parallel="classes"` is the ceiling for the current design. `BaseUITest` holds `driver` and
 `wait` as **instance fields**, which is safe when TestNG gives each class its own instance

@@ -48,12 +48,12 @@ jobs:
           filters: |
             api:
               - 'src/test/java/com/example/tests/api/**'
-              - 'testng-api.xml'
+              - 'testngApi.xml'
               - 'pom.xml'
             ui:
               - 'src/test/java/com/example/tests/ui/**'
               - 'src/test/java/com/example/accessibility/**'
-              - 'testng-ui.xml'
+              - 'testngUi.xml'
               - 'pom.xml'
 
       - name: Decide What to Run
@@ -177,7 +177,7 @@ jobs:
 
       - name: Run API Tests
         id: tests
-        run: mvn test -DsuiteXmlFile=testng-api.xml -B
+        run: mvn test -DsuiteXmlFile=testngApi.xml -B
         continue-on-error: true
 
       - name: Generate Test Summary
@@ -269,7 +269,7 @@ jobs:
 
       - name: Run UI Tests
         id: tests
-        run: mvn test -DsuiteXmlFile=testng-ui.xml -B
+        run: mvn test -DsuiteXmlFile=testngUi.xml -B
         continue-on-error: true
 
       - name: Generate Test Summary

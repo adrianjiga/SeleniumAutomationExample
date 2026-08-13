@@ -20,7 +20,7 @@ public class TodosApiTest extends BaseApiTest {
                 .statusCode(200)
                 .contentType(containsString("application/json"))
                 .body("size()", equalTo(200))
-                .body(matchesJsonSchemaInClasspath("schemas/todos-array-schema.json"));
+                .body(matchesJsonSchemaInClasspath("schemas/todosArraySchema.json"));
     }
 
     @Test(description = "GET /todos?completed=true returns only completed todos")
