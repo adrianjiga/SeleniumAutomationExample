@@ -38,11 +38,11 @@ jobs:
           filters: |
             api:
               - 'src/test/java/com/example/tests/api/**'
-              - 'testng-api.xml'
+              - 'testngApi.xml'
             ui:
               - 'src/test/java/com/example/tests/ui/**'
               - 'src/test/java/com/example/accessibility/**'
-              - 'testng-ui.xml'
+              - 'testngUi.xml'
             shared:
               - 'pom.xml'
               - 'testng.xml'
@@ -114,7 +114,7 @@ jobs:
           sudo apt-get install -y libxml2-utils > /dev/null 2>&1
           echo "Checking TestNG configuration files..."
           failed=0
-          for file in testng.xml testng-api.xml testng-ui.xml; do
+          for file in testng.xml testngApi.xml testngUi.xml; do
             if [[ -f "$file" ]]; then
               echo "[OK] $file exists"
               # Validate XML syntax (--nonet skips external DTD fetch)
