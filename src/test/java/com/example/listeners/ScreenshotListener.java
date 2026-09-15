@@ -2,6 +2,7 @@ package com.example.listeners;
 
 import com.example.tests.ui.BaseUITest;
 import io.qameta.allure.Allure;
+import io.qameta.allure.AttachmentOptions;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
@@ -19,11 +20,11 @@ public class ScreenshotListener implements ITestListener {
             WebDriver driver = baseUITest.getDriver();
             if (driver != null) {
                 byte[] screenshot = ((TakesScreenshot) driver).getScreenshotAs(OutputType.BYTES);
-                Allure.addAttachment(
+                Allure.attachment(
                         "Screenshot on failure — " + result.getName(),
                         "image/png",
                         new ByteArrayInputStream(screenshot),
-                        "png"
+                        AttachmentOptions.empty()
                 );
             }
         }
