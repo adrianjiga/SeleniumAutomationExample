@@ -263,7 +263,7 @@ trigger everything.
   logs still upload, then an explicit `Fail if Tests Failed` step re-raises the failure.
   Without this, a red suite loses its own artifacts
 - **Allure report:** the `report` job merges Allure results from both test suites and runs
-  `mvn allure:report`, producing `target/site/allure-maven/index.html` as an artifact
+  `mvn allure:report`, producing `target/site/allure-maven-plugin/index.html` as an artifact
 - **Concurrency:** in-progress runs on the same ref are cancelled
 - **Features:** test summaries, artifact uploads, automatic retries (2x, via `RetryAnalyzer`
   — see [Test Retries](#test-retries))
@@ -381,7 +381,7 @@ To view the report [locally] without the CLI you can generate a static report wi
 
 ```bash
 mvn allure:report
-open target/site/allure-maven/index.html
+open target/site/allure-maven-plugin/index.html
 ```
 
 With the Allure CLI installed (`brew install allure`) you get a live server instead:
