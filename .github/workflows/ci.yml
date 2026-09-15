@@ -1,8 +1,8 @@
-name: Run Tests
+name: CI
 
 on:
   pull_request:
-    branches: [master]
+    branches: [master, main]
   schedule:
     - cron: "0 7 * * 1-5" # Every Monday to Friday at 07:00 UTC
   workflow_dispatch:
@@ -25,15 +25,17 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  JAVA_VERSION: '25'
+
 jobs:
   changes:
     name: Detect Changes
     runs-on: ubuntu-latest
-    # Always run on schedule/dispatch, detect changes on PR
-    if: github.event_name != 'pull_request' || github.event_name == 'pull_request'
     outputs:
       api: ${{ steps.filter.outputs.api }}
       ui: ${{ steps.filter.outputs.ui }}
+      shared: ${{ steps.filter.outputs.shared }}
       should_run_api: ${{ steps.decide.outputs.api }}
       should_run_ui: ${{ steps.decide.outputs.ui }}
     steps:
@@ -50,15 +52,17 @@ jobs:
               - 'src/test/java/com/example/tests/api/**'
               - 'testngApi.xml'
               - 'pom.xml'
-              # A change to this workflow must run the tests it orchestrates, or a broken job
-              # graph only surfaces after merge, on the scheduled run.
-              - '.github/workflows/runTests.yml'
+              - '.github/workflows/ci.yml'
             ui:
               - 'src/test/java/com/example/tests/ui/**'
               - 'src/test/java/com/example/accessibility/**'
               - 'testngUi.xml'
               - 'pom.xml'
-              - '.github/workflows/runTests.yml'
+              - '.github/workflows/ci.yml'
+            shared:
+              - 'pom.xml'
+              - 'testng.xml'
+              - '.github/workflows/**'
 
       - name: Decide What to Run
         id: decide
@@ -82,6 +86,10 @@ jobs:
                 echo "ui=true" >> $GITHUB_OUTPUT
                 ;;
             esac
+          elif [[ "${{ steps.filter.outputs.shared }}" == "true" ]]; then
+            # Shared build files (pom, testng.xml, workflows) affect both suites
+            echo "api=true" >> $GITHUB_OUTPUT
+            echo "ui=true" >> $GITHUB_OUTPUT
           else
             # For PRs, use path filter results (default to true if no filter ran)
             echo "api=${{ steps.filter.outputs.api || 'true' }}" >> $GITHUB_OUTPUT
@@ -103,7 +111,7 @@ jobs:
         uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
         with:
           distribution: 'temurin'
-          java-version: '17'
+          java-version: ${{ env.JAVA_VERSION }}
           cache: 'maven'
 
       - name: Cache Maven Dependencies
@@ -144,6 +152,94 @@ jobs:
             target/generated-test-sources
           key: ${{ steps.cacheKey.outputs.key }}
 
+  validate:
+    name: Validate Build Environment
+    needs: changes
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Setup Java
+        uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
+        with:
+          distribution: "temurin"
+          java-version: ${{ env.JAVA_VERSION }}
+          cache: "maven"
+
+      - name: Cache Maven Dependencies
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            ~/.m2/repository
+            ~/.m2/wrapper
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - name: Setup Chrome
+        if: needs.changes.outputs.shared == 'true'
+        uses: browser-actions/setup-chrome@48ad923757ca74d66703209fe939badbdf80f2f4 #v2.2.0
+        with:
+          chrome-version: stable
+          install-dependencies: true
+
+      - name: Verify Java
+        run: |
+          echo "Java version:"
+          java -version
+          echo ""
+          echo "Maven version:"
+          mvn -version
+
+      - name: Verify Chrome
+        if: needs.changes.outputs.shared == 'true'
+        run: |
+          echo "Chrome version:"
+          google-chrome --version
+
+      - name: Validate Dependencies
+        run: mvn dependency:resolve -B -q
+
+      - name: Validate TestNG Suites
+        run: |
+          sudo apt-get install -y libxml2-utils > /dev/null 2>&1
+          echo "Checking TestNG configuration files..."
+          failed=0
+          for file in testng.xml testngApi.xml testngUi.xml; do
+            if [[ -f "$file" ]]; then
+              echo "[OK] $file exists"
+              # Validate XML syntax (--nonet skips external DTD fetch)
+              if xmllint --noout --nonet "$file" 2>/dev/null; then
+                echo "  [OK] Valid XML syntax"
+              else
+                echo "  [FAIL] Invalid XML syntax"
+                xmllint --noout --nonet "$file" 2>&1 || true
+                failed=1
+              fi
+            else
+              echo "[FAIL] $file missing"
+              failed=1
+            fi
+          done
+          exit $failed
+
+      - name: Summary
+        run: |
+          echo "### CI Validation Summary :white_check_mark:" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Check | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Java Setup | OK (25) |" >> $GITHUB_STEP_SUMMARY
+          echo "| Maven Dependencies | OK |" >> $GITHUB_STEP_SUMMARY
+          echo "| TestNG Suites | OK |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Changes detected:**" >> $GITHUB_STEP_SUMMARY
+          echo "- API: ${{ needs.changes.outputs.api }}" >> $GITHUB_STEP_SUMMARY
+          echo "- UI: ${{ needs.changes.outputs.ui }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Shared: ${{ needs.changes.outputs.shared }}" >> $GITHUB_STEP_SUMMARY
+
   testApi:
     name: API Tests
     needs: [changes, build]
@@ -157,7 +253,7 @@ jobs:
         uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
         with:
           distribution: 'temurin'
-          java-version: '17'
+          java-version: ${{ env.JAVA_VERSION }}
           cache: 'maven'
 
       - name: Restore Maven Dependencies
@@ -202,6 +298,15 @@ jobs:
           if-no-files-found: ignore
           retention-days: 30
 
+      - name: Upload Allure Results for Report
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: allure-results-api
+          path: target/allure-results/
+          if-no-files-found: ignore
+          retention-days: 30
+
       - name: Upload Test Logs on Failure
         if: failure() || steps.tests.outcome == 'failure'
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
@@ -229,7 +334,7 @@ jobs:
         uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
         with:
           distribution: 'temurin'
-          java-version: '17'
+          java-version: ${{ env.JAVA_VERSION }}
           cache: 'maven'
 
       - name: Restore Maven Dependencies
@@ -295,6 +400,15 @@ jobs:
           if-no-files-found: ignore
           retention-days: 30
 
+      - name: Upload Allure Results for Report
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: allure-results-ui
+          path: target/allure-results/
+          if-no-files-found: ignore
+          retention-days: 30
+
       - name: Upload Test Logs on Failure
         if: failure() || steps.tests.outcome == 'failure'
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
@@ -309,3 +423,44 @@ jobs:
       - name: Fail if Tests Failed
         if: steps.tests.outcome == 'failure'
         run: exit 1
+
+  report:
+    name: Allure Report
+    needs: [testApi, testUi]
+    if: always() && (needs.testApi.result != 'skipped' || needs.testUi.result != 'skipped')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Setup Java
+        uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
+        with:
+          distribution: 'temurin'
+          java-version: ${{ env.JAVA_VERSION }}
+          cache: 'maven'
+
+      - name: Download API Allure Results
+        if: needs.testApi.result != 'skipped'
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+        with:
+          name: allure-results-api
+          path: target/allure-results
+
+      - name: Download UI Allure Results
+        if: needs.testUi.result != 'skipped'
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+        with:
+          name: allure-results-ui
+          path: target/allure-results
+
+      - name: Generate Allure Report
+        run: mvn allure:report -B -q
+
+      - name: Upload Allure Report
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: allure-report
+          path: target/site/allure-maven/
+          if-no-files-found: error
+          retention-days: 30
