@@ -13,15 +13,14 @@
     <description>A demo project showcasing Selenium and REST Assured testing capabilities</description>
 
     <properties>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
+        <maven.compiler.release>25</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <selenium.version>4.49.0</selenium.version>
         <restassured.version>6.0.1</restassured.version>
         <testng.version>7.12.0</testng.version>
         <webdrivermanager.version>6.3.4</webdrivermanager.version>
         <maven-surefire-plugin.version>3.6.0</maven-surefire-plugin.version>
-        <allure.version>2.35.5</allure.version>
+        <allure.version>3.0.0</allure.version>
         <aspectj.version>1.9.25.1</aspectj.version>
         <download-maven-plugin.version>1.13.0</download-maven-plugin.version>
         <!-- Default test suite - can be overridden with -DsuiteXmlFile=testngApi.xml -->
@@ -42,6 +41,18 @@
         <wqa.ref>main</wqa.ref>
         <wqa.bundle>${project.build.directory}/wqa/wqa.js</wqa.bundle>
     </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>io.qameta.allure</groupId>
+                <artifactId>allure-bom</artifactId>
+                <version>${allure.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <dependencies>
         <dependency>
@@ -89,7 +100,6 @@
         <dependency>
             <groupId>io.qameta.allure</groupId>
             <artifactId>allure-testng</artifactId>
-            <version>${allure.version}</version>
         </dependency>
 
         <dependency>
@@ -130,6 +140,16 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>io.qameta.allure</groupId>
+                <artifactId>allure-maven</artifactId>
+                <version>3.0.3</version>
+                <configuration>
+                    <!-- Allure Report 3 CLI runtime; decoupled from the Java adapter version. -->
+                    <reportVersion>3.17.0</reportVersion>
+                </configuration>
             </plugin>
 
             <plugin>

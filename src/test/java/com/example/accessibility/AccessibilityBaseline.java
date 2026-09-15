@@ -37,7 +37,7 @@ public final class AccessibilityBaseline {
      */
     @Step("Compare accessibility findings against the page baseline")
     public static void expectMatches(List<A11yIssue> issues, List<String> baseline) {
-        List<String> found = issues.stream().map(A11yIssue::fingerprint).toList();
+        List<String> found = issues.stream().map(issue -> issue.fingerprint()).toList();
 
         List<String> regressions = found.stream().filter(f -> !baseline.contains(f)).toList();
         List<String> resolved = baseline.stream().filter(b -> !found.contains(b)).toList();

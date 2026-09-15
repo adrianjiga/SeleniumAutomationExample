@@ -10,7 +10,7 @@ A demo project showcasing Selenium WebDriver and REST Assured testing capabiliti
 
 ## Prerequisites
 
-- Java 17 or higher
+- Java 25 or higher
 - Maven 3.6 or higher
 - Chrome browser (for UI tests)
 
@@ -52,8 +52,7 @@ SeleniumAutomationExample/
 ├── .github/
 │   ├── dependabot.yml
 │   └── workflows/
-│       ├── runCi.yml
-│       └── runTests.yml
+│       └── ci.yml
 ├── src/test/
 │   ├── java/com/example/
 │   │   ├── accessibility/
@@ -147,7 +146,7 @@ them. `pom.xml` is the single source of truth:
 mvn help:evaluate -Dexpression=selenium.version -q -DforceStdout
 ```
 
-Runtime requirements (Java 17, Maven 3.6+) are in [Prerequisites](#prerequisites) — those
+Runtime requirements (Java 25+, Maven 3.6+) are in [Prerequisites](#prerequisites) — those
 are floors this project targets, not dependency versions that move on their own.
 
 ## Test Coverage
@@ -246,33 +245,25 @@ the others.
 
 ## CI/CD
 
-Both workflows open with a `changes` job that runs `dorny/paths-filter` to decide whether the
-API side, the UI side, or shared build files were touched. Downstream jobs gate on those
+A single consolidated workflow (`ci.yml`) handles both validation and test execution.
+The opening `changes` job runs `dorny/paths-filter` to decide whether the API side,
+the UI side, or shared build files were touched. Downstream jobs gate on those
 outputs, so a PR that only edits API tests never spins up Chrome.
 
-### CI Workflow (`runCi.yml`)
+**Triggers:** Pull requests to master, weekday schedule (07:00 UTC), manual dispatch
+(`all`, `api`, or `ui` test group selection). Scheduled and dispatch runs
+execute the full suite; shared-file changes (pom.xml, testng.xml, workflows) also
+trigger everything.
 
-Lightweight validation on every pull request — fast feedback (~2 min) without running tests:
+**Jobs:** `changes` → `build` → `test-api` + `test-ui` (parallel) → `report` + `validate`
 
-- Verifies Java, and Chrome **only if** the UI or shared paths changed
-- Resolves Maven dependencies
-- Compiles source and test code, then caches `target/classes` and `target/test-classes`
-  under the commit SHA
-- Validates all three TestNG suite XML files with `xmllint --noout --nonet`
-  (`--nonet` skips the external DTD fetch, so the check doesn't depend on testng.org being up)
-- Writes a summary table to `$GITHUB_STEP_SUMMARY`
-
-### Test Workflow (`runTests.yml`)
-
-Full test execution:
-
-- **Triggers:** Pull requests to master, weekday schedule (07:00 UTC), manual dispatch
-- **Jobs:** `changes` → `build` → (`test-api`, `test-ui`) in parallel on `ubuntu-latest`
-- **Build caching:** the `build` job compiles once and publishes a cache key; both test jobs
-  restore the compiled classes instead of recompiling
+- **Build caching:** the `build` job compiles once under Java 25 and publishes a cache key;
+  both test jobs restore the compiled classes instead of recompiling
 - **Failure handling:** the `mvn test` step uses `continue-on-error: true` so reports and
   logs still upload, then an explicit `Fail if Tests Failed` step re-raises the failure.
   Without this, a red suite loses its own artifacts
+- **Allure report:** the `report` job merges Allure results from both test suites and runs
+  `mvn allure:report`, producing `target/site/allure-maven-plugin/index.html` as an artifact
 - **Concurrency:** in-progress runs on the same ref are cancelled
 - **Features:** test summaries, artifact uploads, automatic retries (2x, via `RetryAnalyzer`
   — see [Test Retries](#test-retries))
@@ -280,7 +271,6 @@ Full test execution:
   is the hard limit on how far back that history can reach — once an artifact expires the run
   is unrecoverable. 30 days matches the sibling Cypress and Playwright projects, so a
   cross-project comparison covers the same window
-- **Manual dispatch:** supports `all`, `api`, or `ui` test group selection
 
 All `actions/*` references are pinned to full commit SHAs with a trailing `# vX.Y.Z` comment.
 SHAs are immutable, so a compromised tag cannot silently re-point at different code.
@@ -386,7 +376,15 @@ Allure requires the AspectJ weaver to be on the JVM's `-javaagent` path; `pom.xm
 this into Surefire's `argLine`. Removing that argument silently disables `@Step` capture —
 the tests still pass, the report just goes blank.
 
-To view the report locally you need the Allure CLI (`brew install allure`), then:
+To view the report [locally] without the CLI you can generate a static report with Maven
+(requires Java 25, the same floor as building):
+
+```bash
+mvn allure:report
+open target/site/allure-maven-plugin/index.html
+```
+
+With the Allure CLI installed (`brew install allure`) you get a live server instead:
 
 ```bash
 allure serve target/allure-results

@@ -44,6 +44,7 @@ public class QueryFeaturesApiTest extends BaseApiTest {
         assertThat(links.get("last"), containsString("_page=10"));
     }
 
+    @SuppressWarnings("null")
     @Test(description = "GET /posts?_sort=id&_order=desc returns posts ordered by id descending")
     public void testSortByIdDescending() {
         List<Integer> ids = given()
@@ -60,6 +61,7 @@ public class QueryFeaturesApiTest extends BaseApiTest {
         assertThat(ids, equalTo(List.of(100, 99, 98)));
     }
 
+    @SuppressWarnings("null")
     @Test(description = "GET /posts?_start=10&_end=15 returns the half-open slice [10, 15)")
     public void testSliceWithStartAndEnd() {
         List<Integer> ids = given()

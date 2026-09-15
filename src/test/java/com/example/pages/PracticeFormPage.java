@@ -175,7 +175,7 @@ public class PracticeFormPage {
                 .stream()
                 .filter(el -> el.getText().equals(countryName))
                 .findFirst()
-                .ifPresent(WebElement::click);
+                .ifPresent(el -> el.click());
         wait.until(ExpectedConditions.textToBePresentInElementLocated(COUNTRY_DISPLAY, countryName));
         return this;
     }
@@ -188,7 +188,7 @@ public class PracticeFormPage {
                 .stream()
                 .filter(el -> el.getText().equals(cityName))
                 .findFirst()
-                .ifPresent(WebElement::click);
+                .ifPresent(el -> el.click());
         wait.until(ExpectedConditions.textToBePresentInElementLocated(CITY_DISPLAY, cityName));
         return this;
     }
@@ -213,7 +213,7 @@ public class PracticeFormPage {
     @Step("Get available city options")
     public List<String> getCityOptions() {
         return driver.findElements(CITY_OPTIONS).stream()
-                .map(WebElement::getText)
+                .map(el -> el.getText())
                 .collect(Collectors.toList());
     }
 
