@@ -145,7 +145,7 @@
             <plugin>
                 <groupId>io.qameta.allure</groupId>
                 <artifactId>allure-maven</artifactId>
-                <version>3.0.3</version>
+                <version>3.1.0</version>
                 <configuration>
                     <!-- Allure Report 3 CLI runtime; decoupled from the Java adapter version. -->
                     <reportVersion>3.17.0</reportVersion>
