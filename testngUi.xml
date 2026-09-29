@@ -19,6 +19,7 @@
             <class name="com.example.tests.ui.form.PracticeFormDatePickerTest"/>
             <class name="com.example.tests.ui.form.PracticeFormLocationTest"/>
             <class name="com.example.tests.ui.accessibility.AccessibilityTest"/>
+            <class name="com.example.listeners.RetryListenerTest"/>
         </classes>
     </test>
 </suite>

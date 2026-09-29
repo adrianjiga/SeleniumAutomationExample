@@ -102,8 +102,8 @@ public final class AccessibilityAuditor {
         String configured = System.getProperty(BUNDLE_PROPERTY);
         if (configured == null || configured.isBlank()) {
             throw new IllegalStateException(
-                    "System property '" + BUNDLE_PROPERTY + "' is not set. Surefire supplies it from the "
-                            + "pom, so run these tests through Maven rather than invoking TestNG directly.");
+                    "System property '" + BUNDLE_PROPERTY + "' is not set. The pom passes it to the "
+                            + "TestNG run, so run these tests through Maven rather than invoking TestNG directly.");
         }
 
         Path bundle = Path.of(configured);

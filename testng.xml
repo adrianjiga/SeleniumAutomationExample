@@ -32,4 +32,10 @@
             <class name="com.example.tests.ui.accessibility.AccessibilityTest"/>
         </classes>
     </test>
+
+    <test name="Framework Tests">
+        <classes>
+            <class name="com.example.listeners.RetryListenerTest"/>
+        </classes>
+    </test>
 </suite>

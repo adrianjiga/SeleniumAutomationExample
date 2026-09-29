@@ -1,6 +1,7 @@
 # Maven
 target/
 .allure/
+allure-results/
 pom.xml.tag
 pom.xml.releaseBackup
 pom.xml.versionsBackup
