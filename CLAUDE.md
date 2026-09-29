@@ -18,18 +18,18 @@ mvn test -DsuiteXmlFile=testngApi.xml
 mvn test -DsuiteXmlFile=testngUi.xml
 
 # Run a single test class
-mvn test -Dtest=PostsApiTest
-mvn test -Dtest=WebTablesCrudTest
-mvn test -Dtest=PracticeFormSubmissionTest
-mvn test -Dtest=ButtonsClickTest
-mvn test -Dtest=AccessibilityTest
+mvn test -DtestClass=com.example.tests.api.PostsApiTest
+mvn test -DtestClass=com.example.tests.ui.webtables.WebTablesCrudTest
+mvn test -DtestClass=com.example.tests.ui.form.PracticeFormSubmissionTest
+mvn test -DtestClass=com.example.tests.ui.buttons.ButtonsClickTest
+mvn test -DtestClass=com.example.tests.ui.accessibility.AccessibilityTest
 
 # Audit against a pinned analyzer build instead of its default branch
-mvn test -Dtest=AccessibilityTest -Dwqa.ref=<commit-sha>
+mvn test -DtestClass=com.example.tests.ui.accessibility.AccessibilityTest -Dwqa.ref=<commit-sha>
 
 # Run a single test method
-mvn test -Dtest=WebTablesCrudTest#testAddNewRecord
-mvn test -Dtest=PostsApiTest#testGetPostByIdMatchesFixture
+mvn test -DtestMethod=com.example.tests.ui.webtables.WebTablesCrudTest.testAddNewRecord
+mvn test -DtestMethod=com.example.tests.api.PostsApiTest.testGetPostByIdMatchesFixture
 ```
 
 ## Architecture
@@ -67,7 +67,8 @@ This is a Maven-based test automation project using TestNG as the test framework
     never appear
   - The bundle is **downloaded at build time**, not vendored. `download-maven-plugin` fetches
     `dist/lib/wqa.js` from the analyzer repo at `${wqa.ref}` (default: its default branch) during
-    `generate-test-resources`; Surefire passes the path as the `wqa.bundle` system property. A
+    `generate-test-resources`; the pom passes the path to the TestNG JVM as a `wqa.bundle` system
+    property. A
     committed copy would be a second source of truth that drifts silently
   - Running the tests outside Maven fails fast with a message saying so, because `wqa.bundle`
     comes from the pom and nothing else sets it
@@ -76,7 +77,7 @@ This is a Maven-based test automation project using TestNG as the test framework
   (an `ITestListener` registered via `@Listeners` on `BaseUITest`) attaches a PNG to the
   Allure result on UI failure, guarding with `result.getInstance() instanceof BaseUITest` so
   API failures fall through. `@Step` capture depends on the AspectJ weaver wired into
-  Surefire's `argLine` in `pom.xml` — drop that and the report silently goes blank
+  the `-javaagent` in `pom.xml` — drop that and the report silently goes blank
 
 ### Test Files
 
@@ -131,8 +132,13 @@ to method-level parallelism means introducing a `ThreadLocal<WebDriver>` first.
 
 ### Key Conventions
 
-- Failed tests automatically retry up to 2 times. This is **not** Surefire's
-  `rerunFailingTestsCount` (that element is not in `pom.xml`). `RetryAnalyzer` implements
+- **Surefire is not used to run tests.** Its default lifecycle binding is unbound in `pom.xml`; the
+  TestNG CLI runs in a forked JVM via `exec-maven-plugin`. Surefire 3.6.0 dropped its TestNG
+  provider, so TestNG only runs there through the abandoned `org.junit.support:testng-engine:1.1.0`
+  bridge, which ignores the suite files entirely and drops `@BeforeClass` under group filtering.
+  Scope tests with `-DsuiteXmlFile`, `-DtestClass`, or `-DtestMethod`. JUnit XML lands in
+  `target/testng-results/junitreports/`
+- Failed tests are meant to retry up to 2 times. `RetryAnalyzer` implements
   `IRetryAnalyzer`; `RetryListener` implements `IAnnotationTransformer` and attaches it to
   every `@Test` that hasn't declared its own, so tests never opt in individually
 - UI tests use explicit waits via `WebDriverWait` (15 second default timeout)

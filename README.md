@@ -38,11 +38,11 @@ mvn test -DsuiteXmlFile=testngApi.xml
 mvn test -DsuiteXmlFile=testngUi.xml
 
 # Run a single test class
-mvn test -Dtest=WebTablesCrudTest
-mvn test -Dtest=PracticeFormSubmissionTest
+mvn test -DtestClass=com.example.tests.ui.webtables.WebTablesCrudTest
+mvn test -DtestClass=com.example.tests.ui.form.PracticeFormSubmissionTest
 
 # Run a single test method
-mvn test -Dtest=WebTablesCrudTest#testAddNewRecord
+mvn test -DtestMethod=com.example.tests.ui.webtables.WebTablesCrudTest.testAddNewRecord
 ```
 
 ## Project Structure
@@ -231,11 +231,11 @@ hierarchy defect once lived there.
 The bundle is **not** a Maven artifact and is **not** vendored into `src/test/resources`. A
 committed copy would be a second source of truth that drifts silently the moment the analyzer
 changes, and nothing here would notice. Instead `download-maven-plugin` fetches it during
-`generate-test-resources`, and Surefire passes the path to the JVM as `wqa.bundle`:
+`generate-test-resources`, and the pom passes the path to the TestNG JVM as `wqa.bundle`:
 
 ```bash
 # Pin a specific analyzer build for a reproducible historic run
-mvn test -Dtest=AccessibilityTest -Dwqa.ref=<commit-sha>
+mvn test -DtestClass=com.example.tests.ui.accessibility.AccessibilityTest -Dwqa.ref=<commit-sha>
 ```
 
 `wqa.ref` defaults to the analyzer's default branch, which is what the Cypress and Playwright
@@ -267,7 +267,7 @@ trigger everything.
 - **Concurrency:** in-progress runs on the same ref are cancelled
 - **Features:** test summaries, artifact uploads, automatic retries (2x, via `RetryAnalyzer`
   — see [Test Retries](#test-retries))
-- **Artifact retention:** 30 days. Surefire XML is the input to flake analytics, so retention
+- **Artifact retention:** 30 days. The JUnit XML is the input to flake analytics, so retention
   is the hard limit on how far back that history can reach — once an artifact expires the run
   is unrecoverable. 30 days matches the sibling Cypress and Playwright projects, so a
   cross-project comparison covers the same window
@@ -354,9 +354,9 @@ Three layers, produced by every run:
 
 | Output | Location | Notes |
 |---|---|---|
-| Surefire XML/TXT | `target/surefire-reports/` | Consumed by the CI test-summary step and by any JUnit-XML reader. |
+| TestNG JUnit XML | `target/testng-results/junitreports/` | Consumed by the CI test-summary step and by any JUnit-XML reader. |
 | Allure results | `target/allure-results/` | Raw result files; directory set in `src/test/resources/allure.properties`. |
-| CI job summary | GitHub Actions run page | Rendered by `test-summary/action` from the Surefire XML. |
+| CI job summary | GitHub Actions run page | Rendered by `test-summary/action` from the TestNG JUnit XML. |
 
 ### Allure
 
@@ -373,7 +373,7 @@ any UI test failure. It resolves the driver by checking `result.getInstance() in
 BaseUITest`, so API test failures are skipped without special-casing.
 
 Allure requires the AspectJ weaver to be on the JVM's `-javaagent` path; `pom.xml` wires
-this into Surefire's `argLine`. Removing that argument silently disables `@Step` capture —
+this into the `-javaagent` flag. Removing that argument silently disables `@Step` capture —
 the tests still pass, the report just goes blank.
 
 To view the report [locally] without the CLI you can generate a static report with Maven
