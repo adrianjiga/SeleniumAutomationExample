@@ -38,11 +38,11 @@ mvn test -DsuiteXmlFile=testngApi.xml
 mvn test -DsuiteXmlFile=testngUi.xml
 
 # Run a single test class
-mvn test -DtestClass=com.example.tests.ui.webtables.WebTablesCrudTest
-mvn test -DtestClass=com.example.tests.ui.form.PracticeFormSubmissionTest
+mvn test "-DtestngArgs=-testclass com.example.tests.ui.webtables.WebTablesCrudTest"
+mvn test "-DtestngArgs=-testclass com.example.tests.ui.form.PracticeFormSubmissionTest"
 
 # Run a single test method
-mvn test -DtestMethod=com.example.tests.ui.webtables.WebTablesCrudTest.testAddNewRecord
+mvn test "-DtestngArgs=-methods com.example.tests.ui.webtables.WebTablesCrudTest.testAddNewRecord"
 ```
 
 ## Project Structure
@@ -235,7 +235,7 @@ changes, and nothing here would notice. Instead `download-maven-plugin` fetches 
 
 ```bash
 # Pin a specific analyzer build for a reproducible historic run
-mvn test -DtestClass=com.example.tests.ui.accessibility.AccessibilityTest -Dwqa.ref=<commit-sha>
+mvn test "-DtestngArgs=-testclass com.example.tests.ui.accessibility.AccessibilityTest" -Dwqa.ref=<commit-sha>
 ```
 
 `wqa.ref` defaults to the analyzer's default branch, which is what the Cypress and Playwright

@@ -18,18 +18,18 @@ mvn test -DsuiteXmlFile=testngApi.xml
 mvn test -DsuiteXmlFile=testngUi.xml
 
 # Run a single test class
-mvn test -DtestClass=com.example.tests.api.PostsApiTest
-mvn test -DtestClass=com.example.tests.ui.webtables.WebTablesCrudTest
-mvn test -DtestClass=com.example.tests.ui.form.PracticeFormSubmissionTest
-mvn test -DtestClass=com.example.tests.ui.buttons.ButtonsClickTest
-mvn test -DtestClass=com.example.tests.ui.accessibility.AccessibilityTest
+mvn test "-DtestngArgs=-testclass com.example.tests.api.PostsApiTest"
+mvn test "-DtestngArgs=-testclass com.example.tests.ui.webtables.WebTablesCrudTest"
+mvn test "-DtestngArgs=-testclass com.example.tests.ui.form.PracticeFormSubmissionTest"
+mvn test "-DtestngArgs=-testclass com.example.tests.ui.buttons.ButtonsClickTest"
+mvn test "-DtestngArgs=-testclass com.example.tests.ui.accessibility.AccessibilityTest"
 
 # Audit against a pinned analyzer build instead of its default branch
-mvn test -DtestClass=com.example.tests.ui.accessibility.AccessibilityTest -Dwqa.ref=<commit-sha>
+mvn test "-DtestngArgs=-testclass com.example.tests.ui.accessibility.AccessibilityTest" -Dwqa.ref=<commit-sha>
 
 # Run a single test method
-mvn test -DtestMethod=com.example.tests.ui.webtables.WebTablesCrudTest.testAddNewRecord
-mvn test -DtestMethod=com.example.tests.api.PostsApiTest.testGetPostByIdMatchesFixture
+mvn test "-DtestngArgs=-methods com.example.tests.ui.webtables.WebTablesCrudTest.testAddNewRecord"
+mvn test "-DtestngArgs=-methods com.example.tests.api.PostsApiTest.testGetPostByIdMatchesFixture"
 ```
 
 ## Architecture
@@ -136,7 +136,8 @@ to method-level parallelism means introducing a `ThreadLocal<WebDriver>` first.
   TestNG CLI runs in a forked JVM via `exec-maven-plugin`. Surefire 3.6.0 dropped its TestNG
   provider, so TestNG only runs there through the abandoned `org.junit.support:testng-engine:1.1.0`
   bridge, which ignores the suite files entirely and drops `@BeforeClass` under group filtering.
-  Scope tests with `-DsuiteXmlFile`, `-DtestClass`, or `-DtestMethod`. JUnit XML lands in
+  Scope tests with `-DsuiteXmlFile`, or override the whole TestNG argv via `-DtestngArgs`
+  (e.g. `"-DtestngArgs=-testclass com.example.tests.api.PostsApiTest"`). JUnit XML lands in
   `target/testng-results/junitreports/`
 - Failed tests are meant to retry up to 2 times. `RetryAnalyzer` implements
   `IRetryAnalyzer`; `RetryListener` implements `IAnnotationTransformer` and attaches it to
