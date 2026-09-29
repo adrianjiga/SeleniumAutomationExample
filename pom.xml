@@ -27,6 +27,7 @@
         <skipTests>false</skipTests>
         <!-- Default test suite - can be overridden with -DsuiteXmlFile=testngApi.xml -->
         <suiteXmlFile>testng.xml</suiteXmlFile>
+        <testngArgs>${suiteXmlFile}</testngArgs>
 
         <!--
             The accessibility analyzer is a browser bundle published by the WebQualityAnalyzer
@@ -181,110 +182,11 @@
                             <skip>${skipTests}</skip>
                             <executable>${java.home}/bin/java</executable>
                             <classpathScope>test</classpathScope>
-                            <arguments>
-                                <argument>-javaagent:${settings.localRepository}/org/aspectj/aspectjweaver/${aspectj.version}/aspectjweaver-${aspectj.version}.jar</argument>
-                                <argument>-Dwqa.bundle=${wqa.bundle}</argument>
-                                <argument>-cp</argument>
-                                <classpath/>
-                                <argument>org.testng.TestNG</argument>
-                                <argument>-d</argument>
-                                <argument>${project.build.directory}/testng-results</argument>
-                                <argument>${suiteXmlFile}</argument>
-                            </arguments>
+                            <commandlineArgs>-javaagent:${settings.localRepository}/org/aspectj/aspectjweaver/${aspectj.version}/aspectjweaver-${aspectj.version}.jar -Dwqa.bundle=${wqa.bundle} -cp %classpath org.testng.TestNG -d ${project.build.directory}/testng-results ${testngArgs}</commandlineArgs>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
         </plugins>
     </build>
-
-    <profiles>
-        <profile>
-            <id>single-class</id>
-            <activation>
-                <property>
-                    <name>testClass</name>
-                </property>
-            </activation>
-            <properties>
-                <skipTests>true</skipTests>
-            </properties>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>exec-maven-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>run-single-class</id>
-                                <phase>test</phase>
-                                <goals>
-                                    <goal>exec</goal>
-                                </goals>
-                                <configuration>
-                                    <executable>${java.home}/bin/java</executable>
-                                    <classpathScope>test</classpathScope>
-                                    <arguments>
-                                        <argument>-javaagent:${settings.localRepository}/org/aspectj/aspectjweaver/${aspectj.version}/aspectjweaver-${aspectj.version}.jar</argument>
-                                        <argument>-Dwqa.bundle=${wqa.bundle}</argument>
-                                        <argument>-cp</argument>
-                                        <classpath/>
-                                        <argument>org.testng.TestNG</argument>
-                                        <argument>-d</argument>
-                                        <argument>${project.build.directory}/testng-results</argument>
-                                        <argument>-testclass</argument>
-                                        <argument>${testClass}</argument>
-                                    </arguments>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-
-        <profile>
-            <id>single-method</id>
-            <activation>
-                <property>
-                    <name>testMethod</name>
-                </property>
-            </activation>
-            <properties>
-                <skipTests>true</skipTests>
-            </properties>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>exec-maven-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>run-single-method</id>
-                                <phase>test</phase>
-                                <goals>
-                                    <goal>exec</goal>
-                                </goals>
-                                <configuration>
-                                    <executable>${java.home}/bin/java</executable>
-                                    <classpathScope>test</classpathScope>
-                                    <arguments>
-                                        <argument>-javaagent:${settings.localRepository}/org/aspectj/aspectjweaver/${aspectj.version}/aspectjweaver-${aspectj.version}.jar</argument>
-                                        <argument>-Dwqa.bundle=${wqa.bundle}</argument>
-                                        <argument>-cp</argument>
-                                        <classpath/>
-                                        <argument>org.testng.TestNG</argument>
-                                        <argument>-d</argument>
-                                        <argument>${project.build.directory}/testng-results</argument>
-                                        <argument>-methods</argument>
-                                        <argument>${testMethod}</argument>
-                                    </arguments>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
 </project>
