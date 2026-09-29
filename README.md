@@ -65,6 +65,7 @@ SeleniumAutomationExample/
 │   │   ├── listeners/
 │   │   │   ├── RetryAnalyzer.java
 │   │   │   ├── RetryListener.java
+│   │   │   ├── RetryListenerTest.java
 │   │   │   └── ScreenshotListener.java
 │   │   ├── pages/
 │   │   │   ├── ButtonsPage.java
@@ -123,6 +124,10 @@ SeleniumAutomationExample/
 ├── testngApi.xml            # API only    (sequential)
 └── testngUi.xml             # UI only     (parallel="classes", 4 threads)
 ```
+
+Suite sizes: `testng.xml` 63 runs, `testngApi.xml` 25, `testngUi.xml` 42. Each suite carries
+its own classes plus the 4 framework tests below, which is why the per-section counts (21 API,
+38 UI) are lower than the suite totals.
 
 ## Tech Stack
 
@@ -243,6 +248,14 @@ suites also track (npm's `github:owner/repo` resolves to default-branch HEAD). A
 suites therefore audit against the same analyzer build, so a finding in one is reproducible in
 the others.
 
+### Framework — 4 tests
+
+Registered in all three suites, so it guards both CI jobs:
+
+| Class | Tests |
+|---|---|
+| `RetryListenerTest` | Attaches the analyzer when TestNG reports `DisabledRetryAnalyzer` or nothing at all, leaves an already-declared analyzer alone, and gives up after 2 retries |
+
 ## CI/CD
 
 A single consolidated workflow (`ci.yml`) handles both validation and test execution.
@@ -327,14 +340,19 @@ but would break under `parallel="methods"`. Moving to method-level parallelism r
 
 ### Test Retries
 
-Failed tests automatically retry up to 2 times. This is **not** Surefire's
-`rerunFailingTestsCount` — it is a TestNG retry analyzer, wired in two parts:
+Failed tests automatically retry up to 2 times, via a TestNG retry analyzer rather than any
+runner-level setting. It is wired in two parts:
 
 - `RetryAnalyzer` (`listeners/RetryAnalyzer.java`) implements `IRetryAnalyzer` and returns
   `true` for the first 2 failures of a test.
 - `RetryListener` (`listeners/RetryListener.java`) implements `IAnnotationTransformer` and
   attaches that analyzer to every `@Test` that does not already declare one, so individual
   tests never need to opt in.
+
+The listener's guard is `DisabledRetryAnalyzer`, **not** `null`. TestNG reports an undeclared
+`retryAnalyzer` as `org.testng.internal.annotations.DisabledRetryAnalyzer`, so testing for
+`null` never matches and retries silently stop applying. `RetryListenerTest` covers this and
+is registered in all three suites.
 
 The listener is registered in each of the three suite XML files:
 
@@ -372,9 +390,14 @@ public WebTablesPage clickEdit(int row) { ... }
 any UI test failure. It resolves the driver by checking `result.getInstance() instanceof
 BaseUITest`, so API test failures are skipped without special-casing.
 
-Allure requires the AspectJ weaver to be on the JVM's `-javaagent` path; `pom.xml` wires
-this into the `-javaagent` flag. Removing that argument silently disables `@Step` capture —
-the tests still pass, the report just goes blank.
+Allure requires the AspectJ weaver on the JVM's `-javaagent` path; `pom.xml` wires it in.
+Removing that argument silently disables `@Step` capture — the tests still pass, the report
+just goes blank.
+
+The `aspectjweaver` dependency is what puts that jar in the local Maven repository for the
+flag to point at. Nothing in `src/` imports it, so it reads as unused, but removing it makes
+the JVM fail to start on a clean machine while still working on any machine that has it
+cached — the one failure mode that CI would hit and a local build would not.
 
 To view the report [locally] without the CLI you can generate a static report with Maven
 (requires Java 25, the same floor as building):

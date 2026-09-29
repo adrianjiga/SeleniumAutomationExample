@@ -68,8 +68,7 @@ This is a Maven-based test automation project using TestNG as the test framework
   - The bundle is **downloaded at build time**, not vendored. `download-maven-plugin` fetches
     `dist/lib/wqa.js` from the analyzer repo at `${wqa.ref}` (default: its default branch) during
     `generate-test-resources`; the pom passes the path to the TestNG JVM as a `wqa.bundle` system
-    property. A
-    committed copy would be a second source of truth that drifts silently
+    property. A committed copy would be a second source of truth that drifts silently
   - Running the tests outside Maven fails fast with a message saying so, because `wqa.bundle`
     comes from the pom and nothing else sets it
 
@@ -77,7 +76,12 @@ This is a Maven-based test automation project using TestNG as the test framework
   (an `ITestListener` registered via `@Listeners` on `BaseUITest`) attaches a PNG to the
   Allure result on UI failure, guarding with `result.getInstance() instanceof BaseUITest` so
   API failures fall through. `@Step` capture depends on the AspectJ weaver wired into
-  the `-javaagent` in `pom.xml` — drop that and the report silently goes blank
+  the `-javaagent` in `pom.xml` — drop that and the report silently goes blank.
+  The `aspectjweaver` **dependency is not removable**, despite nothing in `src/` importing
+  it: the exec plugin's `-javaagent` path points into `${settings.localRepository}`, so the
+  dependency is the only thing that guarantees the jar is on disk. Delete it and the JVM fails
+  to start (`agent library failed Agent_OnLoad: instrument`) — but *only* on a machine without a
+  warm cache, so a local build hides it while CI breaks
 
 ### Test Files
 
@@ -116,12 +120,16 @@ Counts are **test runs**, not `@Test` methods. The only place these differ is
 `AccessibilityTest` deliberately does **not** use a shared base beyond `BaseUITest` — it visits
 all three pages, so binding it to one page's setup would be a lie about its scope.
 
-| `listeners` | `RetryListenerTest` | none (unit) | 4 |
+Shared base classes (no tests): `ui.webtables.BaseWebTablesTest`, `ui.form.BasePracticeFormTest`. Both extend `BaseUITest` from the parent `ui` package and require `import com.example.tests.ui.BaseUITest;`.
+
+**Framework** (`src/test/java/com/example/listeners/`):
+
+| Class | Page | Tests |
+|---|---|---|
+| `RetryListenerTest` | none (unit) | 4 |
 
 Suite totals: `testng.xml` 63, `testngApi.xml` 25, `testngUi.xml` 42. The retry test is
 registered in all three suites, so it guards both CI jobs; it is listed once here.
-
-Shared base classes (no tests): `ui.webtables.BaseWebTablesTest`, `ui.form.BasePracticeFormTest`. Both extend `BaseUITest` from the parent `ui` package and require `import com.example.tests.ui.BaseUITest;`.
 
 ### TestNG Configuration
 
@@ -137,10 +145,13 @@ to method-level parallelism means introducing a `ThreadLocal<WebDriver>` first.
 
 ### Key Conventions
 
-- **Surefire is not used to run tests.** Its default lifecycle binding is unbound in `pom.xml`; the
-  TestNG CLI runs in a forked JVM via `exec-maven-plugin`. Surefire 3.6.0 dropped its TestNG
-  provider, so TestNG only runs there through the abandoned `org.junit.support:testng-engine:1.1.0`
-  bridge, which ignores the suite files entirely and drops `@BeforeClass` under group filtering.
+- **Surefire is not used to run tests.** Its `default-test` execution is bound to `phase` `none`
+  under `<pluginManagement>`, and the TestNG CLI runs instead in a forked JVM via
+  `exec-maven-plugin`. Surefire 3.6.0 dropped its TestNG provider, so TestNG only runs there
+  through the abandoned `org.junit.support:testng-engine:1.1.0` bridge, which ignores the suite
+  files entirely and drops `@BeforeClass` under group filtering. The plugin declaration cannot
+  simply be deleted: with nothing overriding it, Maven falls back to its default Surefire
+  version, which runs and fails on the bridge. Keep it in `pluginManagement` with no `<version>`.
   Scope tests with `-DsuiteXmlFile`, or override the whole TestNG argv via `-DtestngArgs`
   (e.g. `"-DtestngArgs=-testclass com.example.tests.api.PostsApiTest"`). JUnit XML lands in
   `target/testng-results/junitreports/`
