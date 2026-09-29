@@ -285,7 +285,7 @@ jobs:
         if: always()
         uses: test-summary/action@37b508cfee6d4d080eedd00b5bb240a6a784a6a5 # v2.6
         with:
-          paths: target/surefire-reports/TEST-*.xml
+          paths: target/testng-results/junitreports/TEST-*.xml
           show: all
 
       - name: Upload Test Reports
@@ -294,7 +294,7 @@ jobs:
         with:
           name: testReportsApi
           path: |
-            target/surefire-reports/
+            target/testng-results/
             target/allure-results/
           if-no-files-found: ignore
           retention-days: 30
@@ -314,8 +314,8 @@ jobs:
         with:
           name: testLogsApi
           path: |
-            target/surefire-reports/*.xml
-            target/surefire-reports/*.txt
+            target/testng-results/junitreports/*.xml
+            target/testng-results/testng-results.xml
           retention-days: 30
 
       - name: Fail if Tests Failed
@@ -386,7 +386,7 @@ jobs:
         if: always()
         uses: test-summary/action@37b508cfee6d4d080eedd00b5bb240a6a784a6a5 # v2.6
         with:
-          paths: target/surefire-reports/TEST-*.xml
+          paths: target/testng-results/junitreports/TEST-*.xml
           show: all
 
       - name: Upload Test Reports
@@ -395,7 +395,7 @@ jobs:
         with:
           name: testReportsUi
           path: |
-            target/surefire-reports/
+            target/testng-results/
             target/allure-results/
             target/screenshots/
           if-no-files-found: ignore
@@ -416,8 +416,8 @@ jobs:
         with:
           name: testLogsUi
           path: |
-            target/surefire-reports/*.xml
-            target/surefire-reports/*.txt
+            target/testng-results/junitreports/*.xml
+            target/testng-results/testng-results.xml
             target/screenshots/
           retention-days: 30
 
