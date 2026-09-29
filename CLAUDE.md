@@ -116,6 +116,11 @@ Counts are **test runs**, not `@Test` methods. The only place these differ is
 `AccessibilityTest` deliberately does **not** use a shared base beyond `BaseUITest` — it visits
 all three pages, so binding it to one page's setup would be a lie about its scope.
 
+| `listeners` | `RetryListenerTest` | none (unit) | 4 |
+
+Suite totals: `testng.xml` 63, `testngApi.xml` 25, `testngUi.xml` 42. The retry test is
+registered in all three suites, so it guards both CI jobs; it is listed once here.
+
 Shared base classes (no tests): `ui.webtables.BaseWebTablesTest`, `ui.form.BasePracticeFormTest`. Both extend `BaseUITest` from the parent `ui` package and require `import com.example.tests.ui.BaseUITest;`.
 
 ### TestNG Configuration
@@ -139,9 +144,12 @@ to method-level parallelism means introducing a `ThreadLocal<WebDriver>` first.
   Scope tests with `-DsuiteXmlFile`, or override the whole TestNG argv via `-DtestngArgs`
   (e.g. `"-DtestngArgs=-testclass com.example.tests.api.PostsApiTest"`). JUnit XML lands in
   `target/testng-results/junitreports/`
-- Failed tests are meant to retry up to 2 times. `RetryAnalyzer` implements
-  `IRetryAnalyzer`; `RetryListener` implements `IAnnotationTransformer` and attaches it to
-  every `@Test` that hasn't declared its own, so tests never opt in individually
+- Failed tests retry up to 2 times. `RetryAnalyzer` implements `IRetryAnalyzer`;
+  `RetryListener` implements `IAnnotationTransformer` and attaches it to every `@Test` that
+  hasn't declared its own, so tests never opt in individually. The guard is
+  `DisabledRetryAnalyzer`, **not `null`** — TestNG reports an undeclared `retryAnalyzer` as
+  `org.testng.internal.annotations.DisabledRetryAnalyzer`, so a `== null` check silently
+  never fires. `RetryListenerTest` pins this
 - UI tests use explicit waits via `WebDriverWait` (15 second default timeout)
 - Page load timeout: 30 seconds
 - UI locators are **`data-cy` only** — `By.cssSelector("[data-cy='submitBtn']")`. No `By.id`, no `label[for=…]`, no CSS classes, no XPath. Ids still exist on the helper site, but nothing here uses them; a new locator without a `data-cy` hook means adding one to the helper site rather than falling back to an id
