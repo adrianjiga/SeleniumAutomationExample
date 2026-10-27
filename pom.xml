@@ -22,7 +22,7 @@
         <exec-maven-plugin.version>3.6.4</exec-maven-plugin.version>
         <logback.version>1.6.5</logback.version>
         <allure.version>3.0.0</allure.version>
-        <aspectj.version>1.9.25.1</aspectj.version>
+        <aspectj.version>1.9.26</aspectj.version>
         <download-maven-plugin.version>1.13.0</download-maven-plugin.version>
         <skipTests>false</skipTests>
         <!-- Default test suite - can be overridden with -DsuiteXmlFile=testngApi.xml -->
